@@ -1,0 +1,27 @@
+version: '3.9'
+services:
+  db:
+    image: mysql:8.0
+    environment:
+      MYSQL_ROOT_PASSWORD: ${DB_PASS}
+      MYSQL_DATABASE: ${DB_NAME}
+    ports:
+      - ${DB_PORT}:3306
+    volumes:
+      - mcm_db_vol:/var/lib/mysql
+    networks:
+      - mcm_net
+  
+  zipkin:
+    image: openzipkin/zipkin
+    ports:
+      - 9411:9411
+    networks:
+      - mcm_net
+
+networks:
+  mcm_net:
+    driver: bridge
+
+volumes:
+  mcm_db_vol:

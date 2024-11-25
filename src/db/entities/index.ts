@@ -4,3 +4,5 @@ export * from "./record.entity";
 export * from "./extracted-record-category.entity";
 export * from "./extracted-record.entity";
 export * from "./category.entity";
+export * from "./monthly-analysis.entity";
+export * from "./daily-analysis.entity";

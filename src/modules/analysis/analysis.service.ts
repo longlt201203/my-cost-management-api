@@ -1,10 +1,15 @@
 import { BoardEntity, RecordEntity } from "@db/entities";
-import { ExtractedRecordRepository, RecordRepository } from "@db/repositories";
+import {
+	DailyAnalysisRepository,
+	ExtractedRecordRepository,
+	RecordRepository,
+} from "@db/repositories";
 import { Injectable } from "@nestjs/common";
 import { OpenAIService } from "@providers/openai";
 import { ClassTracing } from "magic-otel";
 import { Between, In } from "typeorm";
 import { NoRecordFoundError } from "./errors";
+import dayjs from "dayjs";
 
 @Injectable()
 @ClassTracing()
@@ -13,13 +18,18 @@ export class AnalysisService {
 		private readonly openaiService: OpenAIService,
 		private readonly recordRepository: RecordRepository,
 		private readonly extractedRecordRepository: ExtractedRecordRepository,
+		private readonly dailyAnalysisRepository: DailyAnalysisRepository,
 	) {}
 
-	async analyzeBoardInRange(board: BoardEntity, start: Date, end: Date) {
+	async analyzeBoardDaily(board: BoardEntity) {
+		const now = dayjs();
 		const records = await this.recordRepository.find({
 			where: {
 				boardId: board.id,
-				createdAt: Between(start, end),
+				createdAt: Between(
+					now.startOf("date").toDate(),
+					now.endOf("date").toDate(),
+				),
 			},
 		});
 		if (records.length === 0) throw new NoRecordFoundError();
@@ -44,6 +54,17 @@ export class AnalysisService {
 				notes: item.notes,
 			})),
 		);
+		let total = 0;
+
+		this.dailyAnalysisRepository.save({
+			date: now.get("date"),
+			month: now.get("month"),
+			year: now.get("year"),
+			boardId: board.id,
+			total: extractedRecords.reduce(
+				(prev, current) => prev.amount + current.amount,
+			),
+		});
 		return extractedRecords;
 	}
 }

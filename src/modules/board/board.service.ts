@@ -130,11 +130,7 @@ export class BoardService {
 
 	async getDailyAnalysis() {
 		const board = this.cls.get("board");
-		const data = await this.analysisService.analyzeBoardInRange(
-			board,
-			dayjs().startOf("day").toDate(),
-			dayjs().endOf("day").toDate(),
-		);
+		const data = await this.analysisService.analyzeBoardDaily(board);
 		return data;
 	}
 }

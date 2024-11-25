@@ -5,12 +5,17 @@ import {
 	Get,
 	Param,
 	Post,
+	Put,
 	UseGuards,
 } from "@nestjs/common";
 import { ApiBearerAuth, ApiParam, ApiTags } from "@nestjs/swagger";
 import { RecordService } from "./record.service";
 import { ApiResponseDto } from "@utils";
-import { CreateRecordRequest, RecordResponse } from "./dto";
+import {
+	CreateRecordRequest,
+	RecordResponse,
+	UpdateRecordRequest,
+} from "./dto";
 import { BoardGuard } from "@modules/board";
 
 @Controller("board/:boardId/record")
@@ -45,5 +50,18 @@ export class RecordController {
 	async delete(@Param("recordId") recordId: string) {
 		await this.recordService.delete(+recordId);
 		return new ApiResponseDto(null, null, "Success!");
+	}
+
+	@Put(":recordId")
+	async update(
+		@Param("recordId") recordId: string,
+		@Body() dto: UpdateRecordRequest,
+	) {
+		const data = await this.recordService.update(+recordId, dto);
+		return new ApiResponseDto(
+			RecordResponse.fromEntity(data),
+			null,
+			"Success!",
+		);
 	}
 }

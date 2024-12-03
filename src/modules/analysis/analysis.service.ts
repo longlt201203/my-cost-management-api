@@ -1,4 +1,9 @@
-import { BoardEntity, RecordEntity } from "@db/entities";
+import {
+	BoardEntity,
+	DailyAnalysisEntity,
+	ExtractedRecordEntity,
+	RecordEntity,
+} from "@db/entities";
 import {
 	DailyAnalysisRepository,
 	ExtractedRecordRepository,
@@ -9,7 +14,8 @@ import { OpenAIService } from "@providers/openai";
 import { ClassTracing } from "magic-otel";
 import { Between, In } from "typeorm";
 import { NoRecordFoundError } from "./errors";
-import dayjs from "dayjs";
+import * as dayjs from "dayjs";
+import { Transactional } from "typeorm-transactional";
 
 @Injectable()
 @ClassTracing()
@@ -21,6 +27,7 @@ export class AnalysisService {
 		private readonly dailyAnalysisRepository: DailyAnalysisRepository,
 	) {}
 
+	@Transactional()
 	async analyzeBoardDaily(board: BoardEntity) {
 		const now = dayjs();
 		const records = await this.recordRepository.find({
@@ -55,16 +62,16 @@ export class AnalysisService {
 			})),
 		);
 		let total = 0;
-
-		this.dailyAnalysisRepository.save({
+		for (const record of extractedRecords) {
+			total += record.amount;
+		}
+		const analysis = await this.dailyAnalysisRepository.save({
 			date: now.get("date"),
 			month: now.get("month"),
 			year: now.get("year"),
 			boardId: board.id,
-			total: extractedRecords.reduce(
-				(prev, current) => prev.amount + current.amount,
-			),
+			total: total,
 		});
-		return extractedRecords;
+		return { extractedRecords, analysis };
 	}
 }

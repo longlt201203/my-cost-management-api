@@ -7,6 +7,7 @@ import {
 	BoardRepository,
 	RecordRepository,
 	ExtractedRecordRepository,
+	DailyAnalysisRepository,
 } from "./repositories";
 
 const repositories = [
@@ -14,6 +15,7 @@ const repositories = [
 	BoardRepository,
 	RecordRepository,
 	ExtractedRecordRepository,
+	DailyAnalysisRepository,
 ];
 
 @Global()

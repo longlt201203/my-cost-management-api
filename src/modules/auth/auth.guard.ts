@@ -25,10 +25,14 @@ export class AuthGuard implements CanActivate {
 		const token = this.getTokenFromHeader(request);
 		if (!token) throw new InvalidTokenError();
 
-		const account = await this.authService.verifyAccessToken(token);
-		this.cls.set("account", account);
+		try {
+			const account = await this.authService.verifyAccessToken(token);
+			this.cls.set("account", account);
 
-		return true;
+			return true;
+		} catch (e) {
+			throw new InvalidTokenError();
+		}
 	}
 
 	getTokenFromHeader(request: Request) {

@@ -93,6 +93,11 @@ export class BoardService {
 		});
 	}
 
+	getClsBoard() {
+		const board = this.cls.get("board");
+		return board;
+	}
+
 	async getOneOrFail(boardId: number) {
 		const accountId = this.cls.get("account.id");
 		const board = await this.boardRepository.findOne({

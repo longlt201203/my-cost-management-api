@@ -34,6 +34,14 @@ export class BoardController {
 		return new ApiResponseDto(data, null, "Success!");
 	}
 
+	@Get(":boardId")
+	@ApiParam({ name: "boardId", type: "number" })
+	@UseGuards(BoardGuard)
+	async getOne() {
+		const data = this.boardService.getClsBoard();
+		return new ApiResponseDto(BoardResponse.fromEntity(data), null, "Success!");
+	}
+
 	@Get()
 	async getAll() {
 		const data = await this.boardService.getAll();

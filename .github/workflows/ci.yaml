@@ -60,15 +60,15 @@ jobs:
       - name: Run Docker Image
         run: |
           docker run --name ${{ env.APP_NAME }} --network mcm_net -d \
-          # -e DB_HOST=${{ env.DB_HOST }} \
-          # -e DB_PORT=${{ env.DB_PORT }} \
-          # -e DB_NAME=${{ env.DB_NAME }} \
-          # -e DB_USER=${{ env.DB_USER }} \
-          # -e DB_PASS=${{ env.DB_PASS }} \
-          # -e JWT_AT_SECRET=${{ env.JWT_AT_SECRET }} \
-          # -e JWT_AT_EXPIRES_IN=${{ env.JWT_AT_EXPIRES_IN }} \
-          # -e JWT_RT_SECRET=${{ env.JWT_RT_SECRET }} \
-          # -e JWT_RT_EXPIRES_IN=${{ env.JWT_RT_EXPIRES_IN }} \
-          # -e ENABLE_SWAGGER=${{ env.ENABLE_SWAGGER }} \ 
-          # -e OPEN_AI_API_KEY=${{ env.OPEN_AI_API_KEY }} \
+          -e DB_HOST=${{ env.DB_HOST }} \
+          -e DB_PORT=${{ env.DB_PORT }} \
+          -e DB_NAME=${{ env.DB_NAME }} \
+          -e DB_USER=${{ env.DB_USER }} \
+          -e DB_PASS=${{ env.DB_PASS }} \
+          -e JWT_AT_SECRET=${{ env.JWT_AT_SECRET }} \
+          -e JWT_AT_EXPIRES_IN=${{ env.JWT_AT_EXPIRES_IN }} \
+          -e JWT_RT_SECRET=${{ env.JWT_RT_SECRET }} \
+          -e JWT_RT_EXPIRES_IN=${{ env.JWT_RT_EXPIRES_IN }} \
+          -e ENABLE_SWAGGER=${{ env.ENABLE_SWAGGER }} \ 
+          -e OPEN_AI_API_KEY=${{ env.OPEN_AI_API_KEY }} \
           ${{ secrets.DOCKERHUB_USERNAME }}/${{ env.REPO_ID }}:latest

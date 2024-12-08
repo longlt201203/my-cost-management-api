@@ -10,17 +10,17 @@ on:
 env:
   REPO_ID: my-cost-manangement-api
   APP_NAME: mcm_api
-  DB_HOST: ${{ secrets.DB_HOST }}
-  DB_NAME: ${{ secrets.DB_NAME }}
-  DB_PORT: ${{ secrets.DB_PORT }}
+  # DB_HOST: ${{ secrets.DB_HOST }}
+  # DB_NAME: ${{ secrets.DB_NAME }}
+  # DB_PORT: ${{ secrets.DB_PORT }}
   DB_PASS: ${{ secrets.DB_PASS }}
   DB_USER: ${{ secrets.DB_USER }}
-  ZIPKIN_URL: ${{ secrets.ZIPKIN_URL }}
+  # ZIPKIN_URL: ${{ secrets.ZIPKIN_URL }}
   JWT_AT_SECRET: ${{ secrets.JWT_AT_SECRET }}
-  JWT_AT_EXPIRES_IN: ${{ secrets.JWT_AT_EXPIRES_IN }}
+  # JWT_AT_EXPIRES_IN: ${{ secrets.JWT_AT_EXPIRES_IN }}
   JWT_RT_SECRET: ${{ secrets.JWT_RT_SECRET }}
-  JWT_RT_EXPIRES_IN: ${{ secrets.JWT_RT_EXPIRES_IN }}
-  ENABLE_SWAGGER: ${{ secrets.ENABLE_SWAGGER }}
+  # JWT_RT_EXPIRES_IN: ${{ secrets.JWT_RT_EXPIRES_IN }}
+  # ENABLE_SWAGGER: ${{ secrets.ENABLE_SWAGGER }}
   OPEN_AI_API_KEY: ${{ secrets.OPEN_AI_API_KEY }}
 
 jobs:

@@ -1,9 +1,4 @@
-import {
-	BoardEntity,
-	DailyAnalysisEntity,
-	ExtractedRecordEntity,
-	RecordEntity,
-} from "@db/entities";
+import { BoardEntity } from "@db/entities";
 import {
 	DailyAnalysisRepository,
 	ExtractedRecordRepository,
@@ -15,7 +10,6 @@ import { ClassTracing } from "magic-otel";
 import { Between, In } from "typeorm";
 import { NoRecordFoundError } from "./errors";
 import * as dayjs from "dayjs";
-import { Transactional } from "typeorm-transactional";
 
 @Injectable()
 @ClassTracing()
@@ -27,9 +21,32 @@ export class AnalysisService {
 		private readonly dailyAnalysisRepository: DailyAnalysisRepository,
 	) {}
 
-	@Transactional()
+	async getDailyAnalysis(boardId: number) {
+		const now = dayjs();
+		return await this.dailyAnalysisRepository.findOne({
+			where: {
+				boardId: boardId,
+				createdAt: Between(
+					now.startOf("date").toDate(),
+					now.endOf("date").toDate(),
+				),
+			},
+		});
+	}
+
+	async getDailyExtractedRecord(boardId: number) {
+		const now = dayjs();
+		return await this.extractedRecordRepository.find({
+			where: {
+				boardId: boardId,
+				time: Between(now.startOf("date").toDate(), now.endOf("date").toDate()),
+			},
+		});
+	}
+
 	async analyzeBoardDaily(board: BoardEntity) {
 		const now = dayjs();
+
 		const records = await this.recordRepository.find({
 			where: {
 				boardId: board.id,
@@ -41,7 +58,16 @@ export class AnalysisService {
 		});
 		if (records.length === 0) throw new NoRecordFoundError();
 		const recordIds = records.map((record) => record.id);
-		await this.extractedRecordRepository.delete({ recordId: In(recordIds) });
+		await Promise.all([
+			this.extractedRecordRepository.delete({ recordId: In(recordIds) }),
+			this.dailyAnalysisRepository.delete({
+				boardId: board.id,
+				createdAt: Between(
+					now.startOf("date").toDate(),
+					now.endOf("date").toDate(),
+				),
+			}),
+		]);
 		const content = records
 			.map((record) => `Record ${record.id}: ${record.content}`)
 			.join("\n");
@@ -65,13 +91,13 @@ export class AnalysisService {
 		for (const record of extractedRecords) {
 			total += record.amount;
 		}
-		const analysis = await this.dailyAnalysisRepository.save({
+		await this.dailyAnalysisRepository.save({
 			date: now.get("date"),
 			month: now.get("month"),
 			year: now.get("year"),
 			boardId: board.id,
 			total: total,
+			createdAt: now.toDate(),
 		});
-		return { extractedRecords, analysis };
 	}
 }

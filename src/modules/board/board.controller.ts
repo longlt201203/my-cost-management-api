@@ -13,6 +13,7 @@ import { BoardResponse, CreateBoardRequest, UpdateBoardRequest } from "./dto";
 import { ApiBearerAuth, ApiParam, ApiTags } from "@nestjs/swagger";
 import { ApiResponseDto } from "@utils";
 import { BoardGuard } from "./board.guard";
+import { DailyAnalysisResponse } from "@modules/analysis/dto";
 
 @Controller("board")
 @ApiTags("board")
@@ -30,8 +31,13 @@ export class BoardController {
 	@ApiParam({ name: "boardId", type: "number" })
 	@UseGuards(BoardGuard)
 	async getDailyAnalysis() {
-		const data = await this.boardService.getDailyAnalysis();
-		return new ApiResponseDto(data, null, "Success!");
+		const { analysis, extractedRecords } =
+			await this.boardService.getDailyAnalysis();
+		return new ApiResponseDto(
+			DailyAnalysisResponse.fromEntity(analysis, extractedRecords),
+			null,
+			"Success!",
+		);
 	}
 
 	@Get(":boardId")

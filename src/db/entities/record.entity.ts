@@ -1,7 +1,6 @@
 import { DbConstants } from "@db/db.constants";
 import {
 	Column,
-	CreateDateColumn,
 	Entity,
 	JoinColumn,
 	ManyToOne,
@@ -19,7 +18,7 @@ export class RecordEntity {
 	@Column({ name: ColumnName.Record.content })
 	content: string;
 
-	@CreateDateColumn({ name: ColumnName.Global.createdAt })
+	@Column({ name: ColumnName.Global.createdAt })
 	createdAt: Date;
 
 	@Column({ name: ColumnName.Board.id })

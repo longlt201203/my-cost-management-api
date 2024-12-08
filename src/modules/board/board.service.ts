@@ -134,8 +134,11 @@ export class BoardService {
 	}
 
 	async getDailyAnalysis() {
-		const board = this.cls.get("board");
-		const data = await this.analysisService.analyzeBoardDaily(board);
-		return data;
+		const boardId = this.cls.get("board.id");
+		const [analysis, extractedRecords] = await Promise.all([
+			this.analysisService.getDailyAnalysis(boardId),
+			this.analysisService.getDailyExtractedRecord(boardId),
+		]);
+		return { analysis, extractedRecords };
 	}
 }

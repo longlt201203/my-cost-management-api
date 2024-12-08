@@ -1,6 +1,7 @@
 import { DbConstants } from "@db/db.constants";
 import {
 	Column,
+	CreateDateColumn,
 	Entity,
 	JoinColumn,
 	ManyToOne,
@@ -33,4 +34,9 @@ export class DailyAnalysisEntity {
 	@ManyToOne(() => BoardEntity)
 	@JoinColumn({ name: ColumnName.Board.id })
 	board: BoardEntity;
+
+	@CreateDateColumn({
+		name: DbConstants.ColumnName.Global.createdAt,
+	})
+	createdAt: Date;
 }

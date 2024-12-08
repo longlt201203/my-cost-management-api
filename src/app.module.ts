@@ -8,9 +8,18 @@ import { ClsModule } from "nestjs-cls";
 import { BoardModule } from "@modules/board";
 import { RecordModule } from "@modules/record";
 import { AnalysisModule } from "@modules/analysis";
+import { ServeStaticModule } from "@nestjs/serve-static";
+import * as fs from "fs";
+import * as path from "path";
+
+const staticFolder = path.resolve(__dirname, "../public");
+if (!fs.existsSync(staticFolder)) fs.mkdirSync(staticFolder);
 
 @Module({
 	imports: [
+		ServeStaticModule.forRoot({
+			rootPath: staticFolder,
+		}),
 		ClsModule.forRoot({
 			global: true,
 			middleware: {

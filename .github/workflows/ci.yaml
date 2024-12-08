@@ -1,0 +1,75 @@
+# This is a Github Actions CI template file
+name: Workflow Name
+on:
+  push:
+    branches:
+      - deploy/dev
+
+  workflow_dispatch:
+
+env:
+  REPO_ID: my-cost-manangement-api
+  APP_NAME: mcm_api
+  DB_HOST: ${{ secrets.DB_HOST }}
+  DB_NAME: ${{ secrets.DB_NAME }}
+  DB_PORT: ${{ secrets.DB_PORT }}
+  DB_PASS: ${{ secrets.DB_PASS }}
+  DB_USER: ${{ secrets.DB_USER }}
+  ZIPKIN_URL: ${{ secrets.ZIPKIN_URL }}
+  JWT_AT_SECRET: ${{ secrets.JWT_AT_SECRET }}
+  JWT_AT_EXPIRES_IN: ${{ secrets.JWT_AT_EXPIRES_IN }}
+  JWT_RT_SECRET: ${{ secrets.JWT_RT_SECRET }}
+  JWT_RT_EXPIRES_IN: ${{ secrets.JWT_RT_EXPIRES_IN }}
+  ENABLE_SWAGGER: ${{ secrets.ENABLE_SWAGGER }}
+  OPEN_AI_API_KEY: ${{ secrets.OPEN_AI_API_KEY }}
+
+jobs:
+  build-and-push-docker:
+    runs-on: ubuntu-latest
+    steps:
+      - id: commit
+        uses: prompt/actions-commit-hash@v3
+      - name: Set up QEMU
+        uses: docker/setup-qemu-action@v3
+      - name: Set up Docker Buildx
+        uses: docker/setup-buildx-action@v3
+      - name: Login to Docker Hub
+        uses: docker/login-action@v3
+        with:
+          username: ${{ secrets.DOCKERHUB_USERNAME }}
+          password: ${{ secrets.DOCKERHUB_TOKEN }}
+      - name: Build and push
+        uses: docker/build-push-action@v6
+        with:
+          push: true
+          tags: ${{ secrets.DOCKERHUB_USERNAME }}/${{ env.REPO_ID }}:latest , ${{ secrets.DOCKERHUB_USERNAME }}/${{ env.REPO_ID }}:${{ steps.commit.outputs.short }}
+
+  trigger-cd:
+    needs: build-and-push-docker
+    runs-on: mcm-sv
+    steps:
+      - name: Pull Docker Image
+        run: |
+          docker pull ${{ secrets.DOCKERHUB_USERNAME }}/${{ env.REPO_ID }}:latest
+      - name: Stop Old Container
+        run: |
+          if [ "$(docker ps -a -q -f name=${{ env.APP_NAME }})" ]; then
+            docker stop ${{ env.APP_NAME }}
+            docker rm ${{ env.APP_NAME }}
+          fi
+      - name: Run Docker Image
+        run: |
+          docker run --name ${{ env.APP_NAME }} -d \
+          -e DB_HOST=${{ env.DB_HOST }} \
+          -e DB_PORT=${{ env.DB_PORT }} \
+          -e DB_NAME=${{ env.DB_NAME }} \
+          -e DB_USER=${{ env.DB_USER }} \
+          -e DB_PASS=${{ env.DB_PASS }} \
+          -e ZIPKIN_URL=${{ env.ZIPKIN_URL }} \
+          -e JWT_AT_SECRET=${{ env.JWT_AT_SECRET }} \
+          -e JWT_AT_EXPIRES_IN=${{ env.JWT_AT_EXPIRES_IN }} \
+          -e JWT_RT_SECRET=${{ env.JWT_RT_SECRET }} \
+          -e JWT_RT_EXPIRES_IN=${{ env.JWT_RT_EXPIRES_IN }} \
+          -e ENABLE_SWAGGER=${{ env.ENABLE_SWAGGER }} \ 
+          -e OPEN_AI_API_KEY=${{ env.OPEN_AI_API_KEY }} \
+          ${{ secrets.DOCKERHUB_USERNAME }}/${{ env.REPO_ID }}:latest

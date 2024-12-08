@@ -46,7 +46,7 @@ jobs:
 
   trigger-cd:
     needs: build-and-push-docker
-    runs-on: mcm-sv
+    runs-on: self-hosted
     steps:
       - name: Pull Docker Image
         run: |

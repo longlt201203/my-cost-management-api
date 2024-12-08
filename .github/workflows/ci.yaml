@@ -70,6 +70,6 @@ jobs:
           -e JWT_AT_EXPIRES_IN=${{ env.JWT_AT_EXPIRES_IN }} \
           -e JWT_RT_SECRET=${{ env.JWT_RT_SECRET }} \
           -e JWT_RT_EXPIRES_IN=${{ env.JWT_RT_EXPIRES_IN }} \
-          -e ENABLE_SWAGGER=${{ env.ENABLE_SWAGGER }} \ 
+          -e ENABLE_SWAGGER=${{ env.ENABLE_SWAGGER }} \
           -e OPEN_AI_API_KEY=${{ env.OPEN_AI_API_KEY }} \
           ${{ secrets.DOCKERHUB_USERNAME }}/${{ env.REPO_ID }}:latest

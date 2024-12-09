@@ -21,6 +21,7 @@ export const Env = {
 	ENABLE_SWAGGER: (process.env.ENABLE_SWAGGER || "false") == "true",
 
 	OPEN_AI_API_KEY: process.env.OPEN_AI_API_KEY || "",
+	DEPLOY_KEY: process.env.DEPLOY_KEY || "",
 } as const;
 
 console.log(Env);

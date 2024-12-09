@@ -1,5 +1,6 @@
 import { BoardEntity } from "@db/entities";
 import {
+	BoardRepository,
 	DailyAnalysisRepository,
 	ExtractedRecordRepository,
 	RecordRepository,
@@ -19,6 +20,7 @@ export class AnalysisService {
 		private readonly recordRepository: RecordRepository,
 		private readonly extractedRecordRepository: ExtractedRecordRepository,
 		private readonly dailyAnalysisRepository: DailyAnalysisRepository,
+		private readonly boardRepository: BoardRepository,
 	) {}
 
 	async getDailyAnalysis(boardId: number) {
@@ -99,5 +101,13 @@ export class AnalysisService {
 			total: total,
 			createdAt: now.toDate(),
 		});
+		await this.boardRepository.update(
+			{
+				id: board.id,
+			},
+			{
+				isAnalyzed: true,
+			},
+		);
 	}
 }

@@ -6,6 +6,7 @@ import {
 	Param,
 	Post,
 	Put,
+	Query,
 	UseGuards,
 } from "@nestjs/common";
 import { ApiBearerAuth, ApiParam, ApiTags } from "@nestjs/swagger";
@@ -13,6 +14,7 @@ import { RecordService } from "./record.service";
 import { ApiResponseDto } from "@utils";
 import {
 	CreateRecordRequest,
+	ListRecordsQuery,
 	RecordResponse,
 	UpdateRecordRequest,
 } from "./dto";
@@ -27,8 +29,8 @@ export class RecordController {
 	constructor(private readonly recordService: RecordService) {}
 
 	@Get()
-	async getAll() {
-		const data = await this.recordService.getAll();
+	async getAll(@Query() query: ListRecordsQuery) {
+		const data = await this.recordService.getAll(query);
 		return new ApiResponseDto(
 			RecordResponse.fromEntities(data),
 			null,

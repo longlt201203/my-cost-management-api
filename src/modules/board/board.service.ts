@@ -134,10 +134,11 @@ export class BoardService {
 	}
 
 	async getDailyAnalysis() {
-		const boardId = this.cls.get("board.id");
+		const board = this.cls.get("board");
+		if (!board.isAnalyzed) await this.analysisService.analyzeBoardDaily(board);
 		const [analysis, extractedRecords] = await Promise.all([
-			this.analysisService.getDailyAnalysis(boardId),
-			this.analysisService.getDailyExtractedRecord(boardId),
+			this.analysisService.getDailyAnalysis(board.id),
+			this.analysisService.getDailyExtractedRecord(board.id),
 		]);
 		return { analysis, extractedRecords };
 	}

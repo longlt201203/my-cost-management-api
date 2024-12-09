@@ -60,7 +60,7 @@ jobs:
           fi
       - name: Run Docker Image
         run: |
-          docker run --name ${{ env.APP_NAME }} --network mcm_net -v /mcm_app:/public -d \
+          docker run --name ${{ env.APP_NAME }} --network mcm_net -v /mcm_app:/app/public -d \
           -e DB_HOST=${{ env.DB_HOST }} \
           -e DB_PORT=${{ env.DB_PORT }} \
           -e DB_NAME=${{ env.DB_NAME }} \

@@ -1,0 +1,1 @@
+ALTER TABLE `board` ADD `is_analyzed` tinyint NOT NULL DEFAULT 0;

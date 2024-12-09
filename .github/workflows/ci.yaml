@@ -22,6 +22,7 @@ env:
   JWT_RT_EXPIRES_IN: ${{ secrets.JWT_RT_EXPIRES_IN }}
   ENABLE_SWAGGER: ${{ secrets.ENABLE_SWAGGER }}
   OPEN_AI_API_KEY: ${{ secrets.OPEN_AI_API_KEY }}
+  DEPLOY_KEY: ${{ secrets.DEPLOY_KEY }}
 
 jobs:
   build-and-push-docker:
@@ -72,4 +73,5 @@ jobs:
           -e JWT_RT_EXPIRES_IN=${{ env.JWT_RT_EXPIRES_IN }} \
           -e ENABLE_SWAGGER=${{ env.ENABLE_SWAGGER }} \
           -e OPEN_AI_API_KEY=${{ env.OPEN_AI_API_KEY }} \
+          -e DEPLOY_KEY=${{ env.DEPLOY_KEY }} \
           ${{ secrets.DOCKERHUB_USERNAME }}/${{ env.REPO_ID }}:latest

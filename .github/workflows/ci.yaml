@@ -1,5 +1,5 @@
 # This is a Github Actions CI template file
-name: Workflow Name
+name: MCM API CI
 on:
   push:
     branches:

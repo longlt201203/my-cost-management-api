@@ -11,10 +11,12 @@ export class FrontService {
 		const publicFolderPath = "public";
 		try {
 			if (fs.existsSync(publicFolderPath))
-				fs.rmdirSync(publicFolderPath, { recursive: true });
+				fs.rmSync(publicFolderPath, { recursive: true });
 			const dir = await unzipper.Open.file(filePath);
 			await dir.extract({ path: publicFolderPath });
-		} catch (err) {}
+		} catch (err) {
+			console.log(err);
+		}
 
 		fs.rmSync(uploadsFolderPath, { recursive: true });
 	}

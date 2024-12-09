@@ -10,5 +10,5 @@ FROM node:20 AS runner
 WORKDIR /app
 COPY package.json yarn.lock ./
 RUN yarn
-COPY --from=builder /app/dist ./
-CMD ["node", "main"]
+COPY --from=builder /app/dist ./dist
+CMD ["node", "dist/main"]

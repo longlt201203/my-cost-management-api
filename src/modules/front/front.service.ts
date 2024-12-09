@@ -10,8 +10,18 @@ export class FrontService {
 		const filePath = path.join(uploadsFolderPath, file.filename);
 		const publicFolderPath = "public";
 		try {
-			if (fs.existsSync(publicFolderPath))
-				fs.rmSync(publicFolderPath, { recursive: true });
+			if (fs.existsSync(publicFolderPath)) {
+				const files = fs.readdirSync(publicFolderPath);
+				for (const file of files) {
+					const tmpPath = path.join(publicFolderPath, file);
+					const stats = fs.statSync(tmpPath);
+					if (stats.isDirectory()) {
+						fs.rmSync(tmpPath, { recursive: true });
+					} else {
+						fs.unlinkSync(tmpPath);
+					}
+				}
+			}
 			const dir = await unzipper.Open.file(filePath);
 			await dir.extract({ path: publicFolderPath });
 		} catch (err) {

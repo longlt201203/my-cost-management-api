@@ -9,9 +9,9 @@ import { BoardModule } from "@modules/board";
 import { RecordModule } from "@modules/record";
 import { AnalysisModule } from "@modules/analysis";
 import { ServeStaticModule } from "@nestjs/serve-static";
+import { FrontModule } from "@modules/front";
 import * as fs from "fs";
 import * as path from "path";
-
 const staticFolder = path.resolve(__dirname, "../public");
 if (!fs.existsSync(staticFolder)) fs.mkdirSync(staticFolder);
 
@@ -32,6 +32,7 @@ if (!fs.existsSync(staticFolder)) fs.mkdirSync(staticFolder);
 		BoardModule,
 		RecordModule,
 		AnalysisModule,
+		FrontModule,
 	],
 	controllers: [],
 	providers: [

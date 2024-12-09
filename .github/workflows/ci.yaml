@@ -8,7 +8,7 @@ on:
   workflow_dispatch:
 
 env:
-  REPO_ID: my-cost-manangement-api
+  REPO_ID: my-cost-management-api
   APP_NAME: mcm_api
   DB_HOST: ${{ secrets.DB_HOST }}
   DB_NAME: ${{ secrets.DB_NAME }}

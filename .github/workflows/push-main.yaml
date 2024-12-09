@@ -5,7 +5,7 @@ on:
       - main
 
 env:
-  REPO_ID: my-cost-manangement-api
+  REPO_ID: my-cost-management-api
 
 jobs:
   create-pr:

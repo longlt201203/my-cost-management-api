@@ -27,6 +27,7 @@ export const DbConstants = {
 			id: "board_id",
 			title: "title",
 			currencyUnit: "currency_unit",
+			isAnalyzed: "is_analyzed",
 		},
 
 		Record: {

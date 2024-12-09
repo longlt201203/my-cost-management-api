@@ -28,6 +28,9 @@ export class BoardEntity {
 	@CreateDateColumn({ name: ColumnName.Global.updatedAt })
 	updatedAt: Date;
 
+	@Column({ name: ColumnName.Board.isAnalyzed, default: false })
+	isAnalyzed: boolean;
+
 	@Column({ name: ColumnName.Account.id })
 	accountId: number;
 

@@ -31,7 +31,8 @@ export class FrontController {
 			new ParseFilePipe({
 				validators: [
 					new FileTypeValidator({
-						fileType: "application/x-zip-compressed",
+						fileType:
+							/^(application\/x-zip-compressed|application\/zip|application\/octet-stream|multipart\/x-zip|application\/zip-compressed|application\/x-zip)$/,
 					}),
 				],
 			}),

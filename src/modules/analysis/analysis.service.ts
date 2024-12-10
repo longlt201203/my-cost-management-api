@@ -8,9 +8,13 @@ import {
 import { Injectable } from "@nestjs/common";
 import { OpenAIService } from "@providers/openai";
 import { ClassTracing } from "magic-otel";
-import { Between, In } from "typeorm";
+import { Between } from "typeorm";
 import { NoAnalysisFoundError, NoRecordFoundError } from "./errors";
 import * as dayjs from "dayjs";
+import { ManualAnalyzeBoardDailyRequest } from "./dto";
+import { McmClsStore } from "@utils";
+import { ClsService } from "nestjs-cls";
+import { BoardNotFoundError } from "@modules/board/errors";
 
 @Injectable()
 @ClassTracing()
@@ -21,6 +25,7 @@ export class AnalysisService {
 		private readonly extractedRecordRepository: ExtractedRecordRepository,
 		private readonly dailyAnalysisRepository: DailyAnalysisRepository,
 		private readonly boardRepository: BoardRepository,
+		private readonly cls: ClsService<McmClsStore>,
 	) {}
 
 	async getDailyAnalysis(boardId: number, date: Date) {
@@ -46,6 +51,18 @@ export class AnalysisService {
 				time: Between(d.startOf("date").toDate(), d.endOf("date").toDate()),
 			},
 		});
+	}
+
+	async manualAnalyzeBoardDaily(dto: ManualAnalyzeBoardDailyRequest) {
+		const accountId = this.cls.get("account.id");
+		const board = await this.boardRepository.findOne({
+			where: {
+				id: dto.boardId,
+				accountId: accountId,
+			},
+		});
+		if (!board) throw new BoardNotFoundError();
+		await this.analyzeBoardDaily(board, dto.date);
 	}
 
 	async analyzeBoardDaily(board: BoardEntity, date: Date) {

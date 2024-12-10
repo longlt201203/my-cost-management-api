@@ -20,6 +20,11 @@ import { AppModule } from "./app.module";
 import helmet from "helmet";
 import { initializeTransactionalContext } from "typeorm-transactional";
 import { DocumentBuilder, SwaggerModule } from "@nestjs/swagger";
+import * as dayjs from "dayjs";
+import * as timezone from "dayjs/plugin/timezone";
+import * as utc from "dayjs/plugin/utc";
+dayjs.extend(timezone);
+dayjs.extend(utc);
 
 async function bootstrap() {
 	initializeTransactionalContext();

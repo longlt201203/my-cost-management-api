@@ -2,7 +2,11 @@ import { Injectable } from "@nestjs/common";
 import { McmClsStore } from "@utils";
 import { ClassTracing } from "magic-otel";
 import { ClsService } from "nestjs-cls";
-import { CreateBoardRequest, UpdateBoardRequest } from "./dto";
+import {
+	CreateBoardRequest,
+	GetDailyAnalysisQuery,
+	UpdateBoardRequest,
+} from "./dto";
 import { BoardRepository } from "@db/repositories";
 import { ValidationError } from "class-validator";
 import { ApiValidationError } from "@errors";
@@ -133,12 +137,14 @@ export class BoardService {
 		});
 	}
 
-	async getDailyAnalysis() {
+	async getDailyAnalysis(query: GetDailyAnalysisQuery) {
 		const board = this.cls.get("board");
-		if (!board.isAnalyzed) await this.analysisService.analyzeBoardDaily(board);
+		const date = query.date || new Date();
+		if (!board.isAnalyzed)
+			await this.analysisService.analyzeBoardDaily(board, date);
 		const [analysis, extractedRecords] = await Promise.all([
-			this.analysisService.getDailyAnalysis(board.id),
-			this.analysisService.getDailyExtractedRecord(board.id),
+			this.analysisService.getDailyAnalysis(board.id, date),
+			this.analysisService.getDailyExtractedRecord(board.id, date),
 		]);
 		return { analysis, extractedRecords };
 	}

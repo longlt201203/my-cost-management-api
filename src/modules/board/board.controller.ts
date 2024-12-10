@@ -6,10 +6,16 @@ import {
 	Param,
 	Post,
 	Put,
+	Query,
 	UseGuards,
 } from "@nestjs/common";
 import { BoardService } from "./board.service";
-import { BoardResponse, CreateBoardRequest, UpdateBoardRequest } from "./dto";
+import {
+	BoardResponse,
+	CreateBoardRequest,
+	GetDailyAnalysisQuery,
+	UpdateBoardRequest,
+} from "./dto";
 import { ApiBearerAuth, ApiParam, ApiTags } from "@nestjs/swagger";
 import { ApiResponseDto } from "@utils";
 import { BoardGuard } from "./board.guard";
@@ -30,9 +36,9 @@ export class BoardController {
 	@Get(":boardId/analysis/daily")
 	@ApiParam({ name: "boardId", type: "number" })
 	@UseGuards(BoardGuard)
-	async getDailyAnalysis() {
+	async getDailyAnalysis(@Query() query: GetDailyAnalysisQuery) {
 		const { analysis, extractedRecords } =
-			await this.boardService.getDailyAnalysis();
+			await this.boardService.getDailyAnalysis(query);
 		return new ApiResponseDto(
 			DailyAnalysisResponse.fromEntity(analysis, extractedRecords),
 			null,

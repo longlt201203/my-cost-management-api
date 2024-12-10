@@ -9,7 +9,7 @@ import { Injectable } from "@nestjs/common";
 import { OpenAIService } from "@providers/openai";
 import { ClassTracing } from "magic-otel";
 import { Between, In } from "typeorm";
-import { NoRecordFoundError } from "./errors";
+import { NoAnalysisFoundError, NoRecordFoundError } from "./errors";
 import * as dayjs from "dayjs";
 
 @Injectable()
@@ -23,50 +23,54 @@ export class AnalysisService {
 		private readonly boardRepository: BoardRepository,
 	) {}
 
-	async getDailyAnalysis(boardId: number) {
-		const now = dayjs();
-		return await this.dailyAnalysisRepository.findOne({
+	async getDailyAnalysis(boardId: number, date: Date) {
+		const d = dayjs(date);
+		const analysis = await this.dailyAnalysisRepository.findOne({
 			where: {
 				boardId: boardId,
 				createdAt: Between(
-					now.startOf("date").toDate(),
-					now.endOf("date").toDate(),
+					d.startOf("date").toDate(),
+					d.endOf("date").toDate(),
 				),
 			},
 		});
+		if (!analysis) throw new NoAnalysisFoundError();
+		return analysis;
 	}
 
-	async getDailyExtractedRecord(boardId: number) {
-		const now = dayjs();
+	async getDailyExtractedRecord(boardId: number, date: Date) {
+		const d = dayjs(date);
 		return await this.extractedRecordRepository.find({
 			where: {
 				boardId: boardId,
-				time: Between(now.startOf("date").toDate(), now.endOf("date").toDate()),
+				time: Between(d.startOf("date").toDate(), d.endOf("date").toDate()),
 			},
 		});
 	}
 
-	async analyzeBoardDaily(board: BoardEntity) {
-		const now = dayjs();
+	async analyzeBoardDaily(board: BoardEntity, date: Date) {
+		const d = dayjs(date);
 
 		const records = await this.recordRepository.find({
 			where: {
 				boardId: board.id,
 				createdAt: Between(
-					now.startOf("date").toDate(),
-					now.endOf("date").toDate(),
+					d.startOf("date").toDate(),
+					d.endOf("date").toDate(),
 				),
 			},
 		});
 		if (records.length === 0) throw new NoRecordFoundError();
-		const recordIds = records.map((record) => record.id);
 		await Promise.all([
-			this.extractedRecordRepository.delete({ recordId: In(recordIds) }),
+			this.extractedRecordRepository.delete({
+				boardId: board.id,
+				time: Between(d.startOf("date").toDate(), d.endOf("date").toDate()),
+			}),
 			this.dailyAnalysisRepository.delete({
 				boardId: board.id,
 				createdAt: Between(
-					now.startOf("date").toDate(),
-					now.endOf("date").toDate(),
+					d.startOf("date").toDate(),
+					d.endOf("date").toDate(),
 				),
 			}),
 		]);
@@ -94,12 +98,12 @@ export class AnalysisService {
 			total += record.amount;
 		}
 		await this.dailyAnalysisRepository.save({
-			date: now.get("date"),
-			month: now.get("month"),
-			year: now.get("year"),
+			date: d.get("date"),
+			month: d.get("month"),
+			year: d.get("year"),
 			boardId: board.id,
 			total: total,
-			createdAt: now.toDate(),
+			createdAt: d.toDate(),
 		});
 		await this.boardRepository.update(
 			{

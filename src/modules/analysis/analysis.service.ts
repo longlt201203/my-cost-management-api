@@ -101,7 +101,7 @@ export class AnalysisService {
 		const extractedRecords = await this.extractedRecordRepository.save(
 			extracted.result.map((item) => ({
 				boardId: board.id,
-				time: item.recordTime || new Date(),
+				time: item.recordTime || d.toDate(),
 				recordId: item.recordId,
 				description: item.description,
 				amount: item.amount,

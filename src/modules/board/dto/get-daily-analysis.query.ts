@@ -1,12 +1,14 @@
 import { ApiProperty } from "@nestjs/swagger";
-import { IsDateInRange } from "@utils";
-import { Type } from "class-transformer";
+import { IsDayjs, IsDayjsInRange, transformToDayjs } from "@utils";
+import { Transform } from "class-transformer";
 import { IsOptional } from "class-validator";
+import * as dayjs from "dayjs";
 
 export class GetDailyAnalysisQuery {
 	@ApiProperty({ type: Date, required: false })
-	@IsDateInRange({ maxDate: () => new Date() })
-	@Type(() => Date)
 	@IsOptional()
-	date?: Date;
+	@Transform(transformToDayjs)
+	@IsDayjs()
+	@IsDayjsInRange({ maxDate: () => dayjs() })
+	date?: dayjs.Dayjs;
 }

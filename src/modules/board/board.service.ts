@@ -139,7 +139,7 @@ export class BoardService {
 
 	async getDailyAnalysis(query: GetDailyAnalysisQuery) {
 		const board = this.cls.get("board");
-		const date = query.date || new Date();
+		const date = query.date || dayjs();
 		if (!board.isAnalyzed)
 			await this.analysisService.analyzeBoardDaily(board, date);
 		const [analysis, extractedRecords] = await Promise.all([

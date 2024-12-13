@@ -28,27 +28,34 @@ export class AnalysisService {
 		private readonly cls: ClsService<McmClsStore>,
 	) {}
 
-	async getDailyAnalysis(boardId: number, date: dayjs.Dayjs) {
-		const d = date.local();
+	async getDailyAnalysis(
+		boardId: number,
+		date: dayjs.Dayjs,
+		timezone?: string,
+	) {
+		const startDate = dayjs.tz(date.startOf("date"), timezone);
+		const endDate = dayjs.tz(date.endOf("date"), timezone);
 		const analysis = await this.dailyAnalysisRepository.findOne({
 			where: {
 				boardId: boardId,
-				createdAt: Between(
-					d.startOf("date").toDate(),
-					d.endOf("date").toDate(),
-				),
+				createdAt: Between(startDate.toDate(), endDate.toDate()),
 			},
 		});
 		if (!analysis) throw new NoAnalysisFoundError();
 		return analysis;
 	}
 
-	async getDailyExtractedRecord(boardId: number, date: dayjs.Dayjs) {
-		const d = date.local();
+	async getDailyExtractedRecord(
+		boardId: number,
+		date: dayjs.Dayjs,
+		timezone?: string,
+	) {
+		const startDate = dayjs.tz(date.startOf("date"), timezone);
+		const endDate = dayjs.tz(date.endOf("date"), timezone);
 		return await this.extractedRecordRepository.find({
 			where: {
 				boardId: boardId,
-				time: Between(d.startOf("date").toDate(), d.endOf("date").toDate()),
+				time: Between(startDate.toDate(), endDate.toDate()),
 			},
 		});
 	}
@@ -62,33 +69,32 @@ export class AnalysisService {
 			},
 		});
 		if (!board) throw new BoardNotFoundError();
-		await this.analyzeBoardDaily(board, dto.date);
+		await this.analyzeBoardDaily(board, dto.date, dto.timezone);
 	}
 
-	async analyzeBoardDaily(board: BoardEntity, date: dayjs.Dayjs) {
-		const d = date.local();
+	async analyzeBoardDaily(
+		board: BoardEntity,
+		date: dayjs.Dayjs,
+		timezone?: string,
+	) {
+		const startDate = dayjs.tz(date.startOf("date"), timezone);
+		const endDate = dayjs.tz(date.endOf("date"), timezone);
 
 		const records = await this.recordRepository.find({
 			where: {
 				boardId: board.id,
-				createdAt: Between(
-					d.startOf("date").toDate(),
-					d.endOf("date").toDate(),
-				),
+				createdAt: Between(startDate.toDate(), endDate.toDate()),
 			},
 		});
 		if (records.length === 0) throw new NoRecordFoundError();
 		await Promise.all([
 			this.extractedRecordRepository.delete({
 				boardId: board.id,
-				time: Between(d.startOf("date").toDate(), d.endOf("date").toDate()),
+				time: Between(startDate.toDate(), endDate.toDate()),
 			}),
 			this.dailyAnalysisRepository.delete({
 				boardId: board.id,
-				createdAt: Between(
-					d.startOf("date").toDate(),
-					d.endOf("date").toDate(),
-				),
+				createdAt: Between(startDate.toDate(), endDate.toDate()),
 			}),
 		]);
 		const content = records
@@ -101,7 +107,7 @@ export class AnalysisService {
 		const extractedRecords = await this.extractedRecordRepository.save(
 			extracted.result.map((item) => ({
 				boardId: board.id,
-				time: item.recordTime || d.toDate(),
+				time: item.recordTime || date.toDate(),
 				recordId: item.recordId,
 				description: item.description,
 				amount: item.amount,
@@ -115,12 +121,12 @@ export class AnalysisService {
 			total += record.amount;
 		}
 		await this.dailyAnalysisRepository.save({
-			date: d.get("date"),
-			month: d.get("month"),
-			year: d.get("year"),
+			date: date.get("date"),
+			month: date.get("month"),
+			year: date.get("year"),
 			boardId: board.id,
 			total: total,
-			createdAt: d.toDate(),
+			createdAt: date.toDate(),
 		});
 		await this.boardRepository.update(
 			{

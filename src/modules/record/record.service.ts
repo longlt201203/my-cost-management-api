@@ -9,8 +9,8 @@ import { ClassTracing } from "magic-otel";
 import { McmClsStore } from "@utils";
 import { ClsService } from "nestjs-cls";
 import { RecordNotFoundError } from "./errors";
-import * as dayjs from "dayjs";
 import { Between } from "typeorm";
+import * as dayjs from "dayjs";
 
 @Injectable()
 @ClassTracing()
@@ -42,14 +42,14 @@ export class RecordService {
 	}
 
 	async getAll(query: ListRecordsQuery) {
-		const date = dayjs(query.date);
+		const date = query.date || dayjs();
 		const board = this.cls.get("board");
 		return await this.recordRepository.find({
 			where: {
 				boardId: board.id,
 				createdAt: Between(
-					date.startOf("date").utc().toDate(),
-					date.endOf("date").utc().toDate(),
+					date.startOf("date").toDate(),
+					date.endOf("date").toDate(),
 				),
 			},
 		});

@@ -28,14 +28,14 @@ export class AnalysisService {
 		private readonly cls: ClsService<McmClsStore>,
 	) {}
 
-	async getDailyAnalysis(boardId: number, date: Date) {
-		const d = dayjs(date);
+	async getDailyAnalysis(boardId: number, date: dayjs.Dayjs) {
+		const d = date;
 		const analysis = await this.dailyAnalysisRepository.findOne({
 			where: {
 				boardId: boardId,
 				createdAt: Between(
-					d.startOf("date").utc().toDate(),
-					d.endOf("date").utc().toDate(),
+					d.startOf("date").toDate(),
+					d.endOf("date").toDate(),
 				),
 			},
 		});
@@ -43,15 +43,12 @@ export class AnalysisService {
 		return analysis;
 	}
 
-	async getDailyExtractedRecord(boardId: number, date: Date) {
-		const d = dayjs(date);
+	async getDailyExtractedRecord(boardId: number, date: dayjs.Dayjs) {
+		const d = date;
 		return await this.extractedRecordRepository.find({
 			where: {
 				boardId: boardId,
-				time: Between(
-					d.startOf("date").utc().toDate(),
-					d.endOf("date").utc().toDate(),
-				),
+				time: Between(d.startOf("date").toDate(), d.endOf("date").toDate()),
 			},
 		});
 	}
@@ -68,15 +65,15 @@ export class AnalysisService {
 		await this.analyzeBoardDaily(board, dto.date);
 	}
 
-	async analyzeBoardDaily(board: BoardEntity, date: Date) {
-		const d = dayjs(date);
+	async analyzeBoardDaily(board: BoardEntity, date: dayjs.Dayjs) {
+		const d = date;
 
 		const records = await this.recordRepository.find({
 			where: {
 				boardId: board.id,
 				createdAt: Between(
-					d.startOf("date").utc().toDate(),
-					d.endOf("date").utc().toDate(),
+					d.startOf("date").toDate(),
+					d.endOf("date").toDate(),
 				),
 			},
 		});

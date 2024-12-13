@@ -29,7 +29,7 @@ export class AnalysisService {
 	) {}
 
 	async getDailyAnalysis(boardId: number, date: dayjs.Dayjs) {
-		const d = date;
+		const d = date.local();
 		const analysis = await this.dailyAnalysisRepository.findOne({
 			where: {
 				boardId: boardId,
@@ -44,7 +44,7 @@ export class AnalysisService {
 	}
 
 	async getDailyExtractedRecord(boardId: number, date: dayjs.Dayjs) {
-		const d = date;
+		const d = date.local();
 		return await this.extractedRecordRepository.find({
 			where: {
 				boardId: boardId,
@@ -66,7 +66,7 @@ export class AnalysisService {
 	}
 
 	async analyzeBoardDaily(board: BoardEntity, date: dayjs.Dayjs) {
-		const d = date;
+		const d = date.local();
 
 		const records = await this.recordRepository.find({
 			where: {

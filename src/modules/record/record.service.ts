@@ -42,15 +42,14 @@ export class RecordService {
 	}
 
 	async getAll(query: ListRecordsQuery) {
-		const date = (query.date || dayjs()).local();
+		let date = query.date || dayjs();
+		const startDate = dayjs.tz(date.startOf("date"), query.timezone);
+		const endDate = dayjs.tz(date.endOf("date"), query.timezone);
 		const board = this.cls.get("board");
 		return await this.recordRepository.find({
 			where: {
 				boardId: board.id,
-				createdAt: Between(
-					date.startOf("date").toDate(),
-					date.endOf("date").toDate(),
-				),
+				createdAt: Between(startDate.toDate(), endDate.toDate()),
 			},
 		});
 	}

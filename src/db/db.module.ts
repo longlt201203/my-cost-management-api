@@ -8,6 +8,8 @@ import {
 	RecordRepository,
 	ExtractedRecordRepository,
 	DailyAnalysisRepository,
+	MonthlyAnalysisRepository,
+	YearlyAnalysisRepository,
 } from "./repositories";
 
 const repositories = [
@@ -16,6 +18,8 @@ const repositories = [
 	RecordRepository,
 	ExtractedRecordRepository,
 	DailyAnalysisRepository,
+	MonthlyAnalysisRepository,
+	YearlyAnalysisRepository,
 ];
 
 @Global()

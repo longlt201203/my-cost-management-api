@@ -8,6 +8,7 @@ export const DbConstants = {
 		ExtractedRecordCategory: "extracted_record_category",
 		DailyAnalysis: "daily_analysis",
 		MonthlyAnalysis: "monthly_analysis",
+		YearlyAnalysis: "yearly_analysis",
 	},
 
 	ColumnName: {
@@ -68,7 +69,15 @@ export const DbConstants = {
 			year: "year",
 			total: "total",
 			dailyAvg: "daily_avg",
-			mean: "mean",
+			median: "median",
+			variant: "variant",
+		},
+		YearlyAnalysis: {
+			id: "yearly_analysis_id",
+			year: "year",
+			total: "total",
+			monthAvg: "month_avg",
+			median: "median",
 			variant: "variant",
 		},
 	},

@@ -21,8 +21,8 @@ export class MonthlyAnalysisEntity {
 	@Column({ name: ColumnName.MonthlyAnalysis.total })
 	total: number;
 
-	@Column({ name: ColumnName.MonthlyAnalysis.mean })
-	mean: number;
+	@Column({ name: ColumnName.MonthlyAnalysis.median })
+	median: number;
 
 	@Column({ name: ColumnName.MonthlyAnalysis.variant })
 	variant: number;

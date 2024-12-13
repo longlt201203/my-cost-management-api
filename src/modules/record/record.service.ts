@@ -48,8 +48,8 @@ export class RecordService {
 			where: {
 				boardId: board.id,
 				createdAt: Between(
-					date.startOf("date").toDate(),
-					date.endOf("date").toDate(),
+					date.startOf("date").utc().toDate(),
+					date.endOf("date").utc().toDate(),
 				),
 			},
 		});

@@ -34,8 +34,8 @@ export class AnalysisService {
 			where: {
 				boardId: boardId,
 				createdAt: Between(
-					d.startOf("date").toDate(),
-					d.endOf("date").toDate(),
+					d.startOf("date").utc().toDate(),
+					d.endOf("date").utc().toDate(),
 				),
 			},
 		});
@@ -48,7 +48,10 @@ export class AnalysisService {
 		return await this.extractedRecordRepository.find({
 			where: {
 				boardId: boardId,
-				time: Between(d.startOf("date").toDate(), d.endOf("date").toDate()),
+				time: Between(
+					d.startOf("date").utc().toDate(),
+					d.endOf("date").utc().toDate(),
+				),
 			},
 		});
 	}
@@ -72,8 +75,8 @@ export class AnalysisService {
 			where: {
 				boardId: board.id,
 				createdAt: Between(
-					d.startOf("date").toDate(),
-					d.endOf("date").toDate(),
+					d.startOf("date").utc().toDate(),
+					d.endOf("date").utc().toDate(),
 				),
 			},
 		});

@@ -42,7 +42,7 @@ export class RecordService {
 	}
 
 	async getAll(query: ListRecordsQuery) {
-		const date = query.date || dayjs();
+		const date = (query.date || dayjs()).local();
 		const board = this.cls.get("board");
 		return await this.recordRepository.find({
 			where: {

@@ -1,8 +1,9 @@
 import { Body, Controller, Get, Param, Post, Put } from "@nestjs/common";
 import { ApiTags } from "@nestjs/swagger";
 import { CategoryService } from "./category.service";
-import { CreateCategoryRequest, DeleteRequest } from "./dto";
+import { CategoryResponse, CreateCategoryRequest, DeleteRequest } from "./dto";
 import { SkipAuth } from "@modules/auth";
+import { ApiResponseDto } from "@utils";
 
 @Controller("category")
 @ApiTags("category")
@@ -12,21 +13,29 @@ export class CategoryController {
 
 	@Get()
 	async findAll() {
-		return await this.categoryService.findAll();
+		const data = await this.categoryService.findAll();
+		return new ApiResponseDto(
+			CategoryResponse.fromEntities(data),
+			null,
+			"Success!",
+		);
 	}
 
 	@Post("delete")
 	async delete(@Body() dto: DeleteRequest) {
-		return await this.categoryService.deleteByIds(dto);
+		await this.categoryService.deleteByIds(dto);
+		return new ApiResponseDto(null, null, "Success!");
 	}
 
 	@Post()
 	async create(@Body() dto: CreateCategoryRequest) {
-		return await this.categoryService.create(dto);
+		await this.categoryService.create(dto);
+		return new ApiResponseDto(null, null, "Success!");
 	}
 
 	@Put(":id")
 	async update(@Param("id") id: string, @Body() dto: CreateCategoryRequest) {
-		return await this.categoryService.update(+id, dto);
+		await this.categoryService.update(+id, dto);
+		return new ApiResponseDto(null, null, "Success!");
 	}
 }

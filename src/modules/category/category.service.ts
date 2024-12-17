@@ -3,6 +3,7 @@ import { Injectable } from "@nestjs/common";
 import {
 	CreateCategoryRequest,
 	DeleteRequest,
+	GetCategoriesQuery,
 	UpdateCategoryRequest,
 } from "./dto";
 import { In } from "typeorm";
@@ -14,6 +15,7 @@ export class CategoryService {
 	async create(dto: CreateCategoryRequest) {
 		return await this.categoryRepo.save({
 			name: dto.name,
+			language: dto.language,
 		});
 	}
 
@@ -34,7 +36,11 @@ export class CategoryService {
 		});
 	}
 
-	async findAll() {
-		return await this.categoryRepo.find();
+	async findAll(query: GetCategoriesQuery) {
+		return await this.categoryRepo.find({
+			where: {
+				language: query.language,
+			},
+		});
 	}
 }

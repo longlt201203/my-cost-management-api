@@ -48,6 +48,7 @@ export const DbConstants = {
 		Category: {
 			id: "category_id",
 			name: "name",
+			language: "language",
 		},
 
 		ExtractedRecordCategory: {

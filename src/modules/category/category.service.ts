@@ -15,6 +15,7 @@ export class CategoryService {
 	async create(dto: CreateCategoryRequest) {
 		return await this.categoryRepo.save({
 			name: dto.name,
+			language: dto.language,
 		});
 	}
 

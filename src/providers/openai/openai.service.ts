@@ -17,7 +17,11 @@ export class OpenAIService {
 		});
 	}
 
-	async analyzeDiary(content: string, currencyUnit: string) {
+	async analyzeDiary(
+		content: string,
+		currencyUnit: string,
+		categories: string[],
+	) {
 		const schema = z.object({
 			result: z.array(ExtractRecordResponseSchema),
 		});
@@ -26,7 +30,10 @@ export class OpenAIService {
 			messages: [
 				{
 					role: "system",
-					content: OPENAI_SYSTEM_MESSAGES.ANALYZE_DIARY(currencyUnit),
+					content: OPENAI_SYSTEM_MESSAGES.ANALYZE_DIARY(
+						currencyUnit,
+						categories,
+					),
 				},
 				{
 					role: "user",

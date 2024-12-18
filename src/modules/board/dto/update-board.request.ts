@@ -3,4 +3,5 @@ import { CreateBoardRequest } from "./create-board.request";
 
 export class UpdateBoardRequest extends OmitType(CreateBoardRequest, [
 	"currencyUnit",
+	"language",
 ]) {}

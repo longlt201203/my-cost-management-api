@@ -22,6 +22,9 @@ export class BoardEntity {
 	@Column({ name: ColumnName.Board.currencyUnit })
 	currencyUnit: string;
 
+	@Column({ name: ColumnName.Board.language, default: "en" })
+	language: string;
+
 	@CreateDateColumn({ name: ColumnName.Global.createdAt })
 	createdAt: Date;
 

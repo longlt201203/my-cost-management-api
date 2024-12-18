@@ -17,6 +17,9 @@ export class BoardResponse {
 	@ApiProperty()
 	currencyUnit: string;
 
+	@ApiProperty()
+	language: string;
+
 	static fromEntity(entity: BoardEntity): BoardResponse {
 		return {
 			id: entity.id,
@@ -24,6 +27,7 @@ export class BoardResponse {
 			createdAt: entity.createdAt,
 			updatedAt: entity.updatedAt,
 			currencyUnit: entity.currencyUnit,
+			language: entity.language,
 		};
 	}
 

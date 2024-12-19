@@ -28,6 +28,7 @@ export const DbConstants = {
 			title: "title",
 			currencyUnit: "currency_unit",
 			isAnalyzed: "is_analyzed",
+			language: "language",
 		},
 
 		Record: {

@@ -83,7 +83,9 @@ export class BoardService {
 		const accountId = this.cls.get("account.id");
 		await this.validateBeforeCreate(dto, accountId);
 		return await this.boardRepository.save({
-			...dto,
+			title: dto.title,
+			currencyUnit: dto.currencyUnit,
+			language: dto.language,
 			accountId: accountId,
 		});
 	}

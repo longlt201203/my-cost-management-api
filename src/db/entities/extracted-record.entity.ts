@@ -4,11 +4,13 @@ import {
 	Entity,
 	JoinColumn,
 	ManyToOne,
+	OneToMany,
 	OneToOne,
 	PrimaryGeneratedColumn,
 } from "typeorm";
 import { RecordEntity } from "./record.entity";
 import { BoardEntity } from "./board.entity";
+import { ExtractedRecordCategoryEntity } from "./extracted-record-category.entity";
 
 const { ColumnName, TableName } = DbConstants;
 
@@ -48,4 +50,10 @@ export class ExtractedRecordEntity {
 	@ManyToOne(() => BoardEntity)
 	@JoinColumn({ name: ColumnName.Board.id })
 	board: BoardEntity;
+
+	@OneToMany(
+		() => ExtractedRecordCategoryEntity,
+		(extractedRecordCategory) => extractedRecordCategory.extractedRecord,
+	)
+	extractedRecordCategories: ExtractedRecordCategoryEntity[];
 }

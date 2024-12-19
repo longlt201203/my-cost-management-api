@@ -1,6 +1,8 @@
-import { BoardEntity } from "@db/entities";
+import { BoardEntity, ExtractedRecordEntity } from "@db/entities";
 import {
+	AnalysisRepository,
 	BoardRepository,
+	CategoryRepository,
 	DailyAnalysisRepository,
 	ExtractedRecordRepository,
 	RecordRepository,
@@ -12,7 +14,7 @@ import { Between } from "typeorm";
 import { NoAnalysisFoundError, NoRecordFoundError } from "./errors";
 import * as dayjs from "dayjs";
 import { ManualAnalyzeBoardDailyRequest } from "./dto";
-import { McmClsStore } from "@utils";
+import { McmClsStore, PromiseAllHandler } from "@utils";
 import { ClsService } from "nestjs-cls";
 import { BoardNotFoundError } from "@modules/board/errors";
 
@@ -25,6 +27,8 @@ export class AnalysisService {
 		private readonly extractedRecordRepository: ExtractedRecordRepository,
 		private readonly dailyAnalysisRepository: DailyAnalysisRepository,
 		private readonly boardRepository: BoardRepository,
+		private readonly categoryRepository: CategoryRepository,
+		private readonly analysisRepository: AnalysisRepository,
 		private readonly cls: ClsService<McmClsStore>,
 	) {}
 
@@ -52,11 +56,9 @@ export class AnalysisService {
 	) {
 		const startDate = dayjs.tz(date.startOf("date"), timezone);
 		const endDate = dayjs.tz(date.endOf("date"), timezone);
-		return await this.extractedRecordRepository.find({
-			where: {
-				boardId: boardId,
-				time: Between(startDate.toDate(), endDate.toDate()),
-			},
+		return await this.extractedRecordRepository.findWithCategories({
+			boardId: boardId,
+			time: Between(startDate.toDate(), endDate.toDate()),
 		});
 	}
 
@@ -87,35 +89,47 @@ export class AnalysisService {
 			},
 		});
 		if (records.length === 0) throw new NoRecordFoundError();
-		await Promise.all([
-			this.extractedRecordRepository.delete({
-				boardId: board.id,
-				time: Between(startDate.toDate(), endDate.toDate()),
-			}),
-			this.dailyAnalysisRepository.delete({
-				boardId: board.id,
-				createdAt: Between(startDate.toDate(), endDate.toDate()),
-			}),
-		]);
-		const content = records
-			.map((record) => `Record ${record.id}: ${record.content}`)
-			.join("\n");
+		const recordTimeMap = {};
+		const contentArr = [];
+		for (const record of records) {
+			recordTimeMap[record.id] = record.createdAt;
+			contentArr.push(`Record ${record.id}: ${record.content}`);
+		}
+		await this.analysisRepository.cleanUpDailyAnalysis(
+			board.id,
+			date,
+			timezone,
+		);
+		const categories = await this.categoryRepository.find({
+			where: {
+				language: board.language,
+			},
+		});
 		const extracted = await this.openaiService.analyzeDiary(
-			content,
+			contentArr.join("\n"),
 			board.currencyUnit,
+			categories.map((item) => `${item.id} - ${item.name}`),
 		);
-		const extractedRecords = await this.extractedRecordRepository.save(
-			extracted.result.map((item) => ({
-				boardId: board.id,
-				time: item.recordTime || date.toDate(),
-				recordId: item.recordId,
-				description: item.description,
-				amount: item.amount,
-				paymentMethod: item.paymentMethod,
-				location: item.location,
-				notes: item.notes,
-			})),
-		);
+		const handler = new PromiseAllHandler(10, 50);
+		for (const item of extracted.result) {
+			handler.push(
+				this.extractedRecordRepository.createWithCategories(
+					{
+						boardId: board.id,
+						time: recordTimeMap[item.recordId],
+						recordId: item.recordId,
+						description: item.description,
+						amount: item.amount,
+						paymentMethod: item.paymentMethod,
+						location: item.location,
+						notes: item.notes,
+					},
+					item.categories || [],
+				),
+			);
+		}
+		const extractedRecords =
+			(await handler.execute()) as ExtractedRecordEntity[];
 		let total = 0;
 		for (const record of extractedRecords) {
 			total += record.amount;

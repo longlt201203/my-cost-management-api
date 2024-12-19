@@ -1,0 +1,1 @@
+ALTER TABLE `board` ADD `language` varchar(255) NOT NULL DEFAULT 'en';

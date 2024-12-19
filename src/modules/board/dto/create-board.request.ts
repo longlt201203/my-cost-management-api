@@ -11,4 +11,9 @@ export class CreateBoardRequest {
 	@IsString()
 	@IsNotEmpty()
 	currencyUnit: string;
+
+	@ApiProperty({ example: "en" })
+	@IsString()
+	@IsNotEmpty()
+	language: string;
 }

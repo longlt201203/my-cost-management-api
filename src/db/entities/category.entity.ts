@@ -13,4 +13,7 @@ export class CategoryEntity {
 
 	@Column({ name: ColumnName.Category.language, default: "en" })
 	language: string;
+
+	@Column({ name: ColumnName.Category.color, nullable: true })
+	color: string;
 }

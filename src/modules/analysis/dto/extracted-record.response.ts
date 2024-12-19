@@ -8,6 +8,7 @@ export class ExtractedRecordResponse {
 	paymentMethod: string;
 	location: string;
 	notes: string;
+	categories: string[];
 
 	static fromEntity(entity: ExtractedRecordEntity): ExtractedRecordResponse {
 		return {
@@ -18,6 +19,9 @@ export class ExtractedRecordResponse {
 			location: entity.location,
 			notes: entity.notes,
 			paymentMethod: entity.paymentMethod,
+			categories: entity.extractedRecordCategories.map(
+				(item) => item.category.name,
+			),
 		};
 	}
 

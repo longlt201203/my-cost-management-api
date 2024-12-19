@@ -9,6 +9,8 @@ import {
 	ExtractedRecordRepository,
 	DailyAnalysisRepository,
 	CategoryRepository,
+	ExtractedRecordCategoryRepository,
+	AnalysisRepository,
 } from "./repositories";
 
 const repositories = [
@@ -18,6 +20,8 @@ const repositories = [
 	ExtractedRecordRepository,
 	DailyAnalysisRepository,
 	CategoryRepository,
+	ExtractedRecordCategoryRepository,
+	AnalysisRepository,
 ];
 
 @Global()

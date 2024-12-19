@@ -56,11 +56,9 @@ export class AnalysisService {
 	) {
 		const startDate = dayjs.tz(date.startOf("date"), timezone);
 		const endDate = dayjs.tz(date.endOf("date"), timezone);
-		return await this.extractedRecordRepository.find({
-			where: {
-				boardId: boardId,
-				time: Between(startDate.toDate(), endDate.toDate()),
-			},
+		return await this.extractedRecordRepository.findWithCategories({
+			boardId: boardId,
+			time: Between(startDate.toDate(), endDate.toDate()),
 		});
 	}
 
@@ -91,10 +89,10 @@ export class AnalysisService {
 			},
 		});
 		if (records.length === 0) throw new NoRecordFoundError();
-		const recordTimeMap = new Map<number, Date>();
+		const recordTimeMap = {};
 		const contentArr = [];
 		for (const record of records) {
-			recordTimeMap.set(record.id, record.createdAt);
+			recordTimeMap[record.id] = record.createdAt;
 			contentArr.push(`Record ${record.id}: ${record.content}`);
 		}
 		await this.analysisRepository.cleanUpDailyAnalysis(
@@ -118,7 +116,7 @@ export class AnalysisService {
 				this.extractedRecordRepository.createWithCategories(
 					{
 						boardId: board.id,
-						time: recordTimeMap[item.recordId].toDate(),
+						time: recordTimeMap[item.recordId],
 						recordId: item.recordId,
 						description: item.description,
 						amount: item.amount,

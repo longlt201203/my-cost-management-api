@@ -4,6 +4,7 @@ import { ClassTracing } from "magic-otel";
 import { DataSource, DeepPartial, FindOptionsWhere, Repository } from "typeorm";
 import { Transactional } from "typeorm-transactional";
 import { ExtractedRecordCategoryRepository } from "./extracted-record-category.repository";
+import { PromiseAllHandler } from "@utils";
 
 @Injectable()
 @ClassTracing()
@@ -36,8 +37,29 @@ export class ExtractedRecordRepository extends Repository<ExtractedRecordEntity>
 
 	async findIdsAndDelete(criteria: FindOptionsWhere<ExtractedRecordEntity>) {
 		const records = await this.find({ where: criteria });
+		if (records.length == 0) return [];
 		const ids = records.map((item) => item.id);
 		await this.delete(ids);
 		return ids;
+	}
+
+	async findWithCategories(criteria: FindOptionsWhere<ExtractedRecordEntity>) {
+		const records = await this.find({ where: criteria });
+		const handler = new PromiseAllHandler(10, 50);
+		for (const record of records) {
+			handler.push(
+				this.extractedRecordCategoryRepository.find({
+					where: { extractedRecordId: record.id },
+					relations: {
+						category: true,
+					},
+				}),
+			);
+		}
+		const categories = await handler.execute();
+		for (let i = 0; i < records.length; i++) {
+			records[i].extractedRecordCategories = categories[i];
+		}
+		return records;
 	}
 }

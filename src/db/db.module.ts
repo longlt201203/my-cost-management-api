@@ -10,6 +10,9 @@ import {
 	DailyAnalysisRepository,
 	MonthlyAnalysisRepository,
 	YearlyAnalysisRepository,
+	CategoryRepository,
+	ExtractedRecordCategoryRepository,
+	AnalysisRepository,
 } from "./repositories";
 
 const repositories = [
@@ -20,6 +23,9 @@ const repositories = [
 	DailyAnalysisRepository,
 	MonthlyAnalysisRepository,
 	YearlyAnalysisRepository,
+	CategoryRepository,
+	ExtractedRecordCategoryRepository,
+	AnalysisRepository,
 ];
 
 @Global()

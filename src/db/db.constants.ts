@@ -29,6 +29,7 @@ export const DbConstants = {
 			title: "title",
 			currencyUnit: "currency_unit",
 			isAnalyzed: "is_analyzed",
+			language: "language",
 		},
 
 		Record: {
@@ -49,6 +50,8 @@ export const DbConstants = {
 		Category: {
 			id: "category_id",
 			name: "name",
+			language: "language",
+			color: "color",
 		},
 
 		ExtractedRecordCategory: {

@@ -1,12 +1,12 @@
-import { DailyAnalysisEntity } from "@db/entities";
+import { CategoryEntity } from "@db/entities";
 import { Injectable } from "@nestjs/common";
 import { ClassTracing } from "magic-otel";
 import { DataSource, Repository } from "typeorm";
 
 @Injectable()
 @ClassTracing()
-export class DailyAnalysisRepository extends Repository<DailyAnalysisEntity> {
+export class CategoryRepository extends Repository<CategoryEntity> {
 	constructor(datasource: DataSource) {
-		super(DailyAnalysisEntity, datasource.createEntityManager());
+		super(CategoryEntity, datasource.createEntityManager());
 	}
 }

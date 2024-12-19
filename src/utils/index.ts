@@ -7,3 +7,4 @@ export * from "./api-response.dto";
 export * from "./multer-storage";
 export * from "./mcm-cls-store";
 export * from "./custom-validators";
+export * from "./promise-all-handler";

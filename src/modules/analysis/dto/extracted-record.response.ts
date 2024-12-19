@@ -1,4 +1,5 @@
 import { ExtractedRecordEntity } from "@db/entities";
+import { CategoryResponse } from "@modules/category/dto";
 
 export class ExtractedRecordResponse {
 	id: number;
@@ -8,7 +9,7 @@ export class ExtractedRecordResponse {
 	paymentMethod: string;
 	location: string;
 	notes: string;
-	categories: string[];
+	categories: CategoryResponse[];
 
 	static fromEntity(entity: ExtractedRecordEntity): ExtractedRecordResponse {
 		return {
@@ -19,8 +20,8 @@ export class ExtractedRecordResponse {
 			location: entity.location,
 			notes: entity.notes,
 			paymentMethod: entity.paymentMethod,
-			categories: entity.extractedRecordCategories.map(
-				(item) => item.category.name,
+			categories: entity.extractedRecordCategories.map((item) =>
+				CategoryResponse.fromEntity(item.category),
 			),
 		};
 	}

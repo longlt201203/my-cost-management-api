@@ -1,5 +1,5 @@
 import { ApiProperty } from "@nestjs/swagger";
-import { IsString } from "class-validator";
+import { IsOptional, IsString } from "class-validator";
 
 export class CreateCategoryRequest {
 	@ApiProperty()
@@ -9,4 +9,9 @@ export class CreateCategoryRequest {
 	@ApiProperty()
 	@IsString()
 	language: string;
+
+	@ApiProperty({ required: false })
+	@IsOptional()
+	@IsString()
+	color?: string;
 }

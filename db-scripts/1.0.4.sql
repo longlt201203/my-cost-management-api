@@ -1,0 +1,1 @@
+ALTER TABLE `category` ADD `color` varchar(255) NULL;

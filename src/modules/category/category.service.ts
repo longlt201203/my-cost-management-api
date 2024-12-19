@@ -16,6 +16,7 @@ export class CategoryService {
 		return await this.categoryRepo.save({
 			name: dto.name,
 			language: dto.language,
+			color: dto.color,
 		});
 	}
 
@@ -26,6 +27,7 @@ export class CategoryService {
 			},
 			{
 				name: dto.name,
+				color: dto.color,
 			},
 		);
 	}

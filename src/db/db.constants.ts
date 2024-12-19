@@ -50,6 +50,7 @@ export const DbConstants = {
 			id: "category_id",
 			name: "name",
 			language: "language",
+			color: "color",
 		},
 
 		ExtractedRecordCategory: {

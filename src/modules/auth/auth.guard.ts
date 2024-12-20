@@ -1,5 +1,5 @@
 import { CanActivate, ExecutionContext, Injectable } from "@nestjs/common";
-import { AuthService } from "./auth.service";
+import { AuthService } from "./services";
 import { Request } from "express";
 import { ClsService } from "nestjs-cls";
 import { McmClsStore } from "@utils";
@@ -22,7 +22,8 @@ export class AuthGuard implements CanActivate {
 			return true;
 		}
 		const request = context.switchToHttp().getRequest<Request>();
-		const token = this.getTokenFromHeader(request);
+		const token =
+			this.getTokenFromCookie(request) || this.getTokenFromHeader(request);
 		if (!token) throw new InvalidTokenError();
 
 		try {
@@ -41,5 +42,9 @@ export class AuthGuard implements CanActivate {
 			return null;
 		}
 		return authorization.split(" ")[1];
+	}
+
+	getTokenFromCookie(request: Request) {
+		return request.cookies.accessToken;
 	}
 }

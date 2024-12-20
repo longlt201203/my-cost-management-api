@@ -1,8 +1,8 @@
 import { AccountRepository } from "@db/repositories";
 import { Injectable } from "@nestjs/common";
 import { ClassTracing } from "magic-otel";
-import { BasicLoginRequest } from "./dto";
-import { InvalidTokenError, WrongUsernameOrPasswordError } from "./errors";
+import { BasicLoginRequest } from "../dto";
+import { InvalidTokenError, WrongUsernameOrPasswordError } from "../errors";
 import * as jwt from "jsonwebtoken";
 import { Env, McmClsStore } from "@utils";
 import * as bcrypt from "bcrypt";

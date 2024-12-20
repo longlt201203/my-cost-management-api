@@ -1,6 +1,6 @@
 import { Body, Controller, Post } from "@nestjs/common";
 import { AccountService } from "./account.service";
-import { CreateAccountRequest } from "./dto";
+import { CheckExistsAccountRequest, CreateAccountRequest } from "./dto";
 import { ApiResponseDto } from "@utils";
 import { ApiTags } from "@nestjs/swagger";
 import { SkipAuth } from "@modules/auth";
@@ -14,6 +14,13 @@ export class AccountController {
 	@SkipAuth()
 	async create(@Body() dto: CreateAccountRequest) {
 		const data = await this.accountService.create(dto);
+		return new ApiResponseDto(data, null, "Success!");
+	}
+
+	@Post("exists")
+	@SkipAuth()
+	async checkExists(@Body() dto: CheckExistsAccountRequest) {
+		const data = await this.accountService.checkExists(dto);
 		return new ApiResponseDto(data, null, "Success!");
 	}
 }

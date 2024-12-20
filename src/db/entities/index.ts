@@ -6,3 +6,4 @@ export * from "./extracted-record.entity";
 export * from "./category.entity";
 export * from "./monthly-analysis.entity";
 export * from "./daily-analysis.entity";
+export * from "./yearly-analysis.entity";

@@ -34,6 +34,9 @@ export class BoardEntity {
 	@Column({ name: ColumnName.Board.isAnalyzed, default: false })
 	isAnalyzed: boolean;
 
+	@Column({ name: ColumnName.Global.isDeleted, default: false })
+	isDeleted: boolean;
+
 	@Column({ name: ColumnName.Account.id })
 	accountId: number;
 

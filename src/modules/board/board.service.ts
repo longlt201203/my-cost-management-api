@@ -95,6 +95,7 @@ export class BoardService {
 		return await this.boardRepository.find({
 			where: {
 				accountId: accountId,
+				isDeleted: false,
 			},
 		});
 	}
@@ -110,6 +111,7 @@ export class BoardService {
 			where: {
 				id: boardId,
 				accountId: accountId,
+				isDeleted: false,
 			},
 		});
 		if (!board) {
@@ -134,9 +136,14 @@ export class BoardService {
 
 	async delete() {
 		const boardId = this.cls.get("board.id");
-		await this.boardRepository.delete({
-			id: boardId,
-		});
+		await this.boardRepository.update(
+			{
+				id: boardId,
+			},
+			{
+				isDeleted: true,
+			},
+		);
 	}
 
 	async getDailyAnalysis(query: GetDailyAnalysisQuery) {

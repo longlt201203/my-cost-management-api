@@ -22,6 +22,8 @@ export const Env = {
 
 	OPEN_AI_API_KEY: process.env.OPEN_AI_API_KEY || "",
 	DEPLOY_KEY: process.env.DEPLOY_KEY || "",
+
+	APP_DOMAIN: process.env.APP_DOMAIN || "",
 } as const;
 
 console.log(Env);

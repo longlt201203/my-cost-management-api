@@ -15,6 +15,7 @@ export const DbConstants = {
 		Global: {
 			createdAt: "created_at",
 			updatedAt: "updated_at",
+			isDeleted: "is_deleted",
 		},
 
 		Account: {

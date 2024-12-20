@@ -18,6 +18,7 @@ registerOpentelemetry({
 import { NestFactory } from "@nestjs/core";
 import { AppModule } from "./app.module";
 import helmet from "helmet";
+import * as cookieParser from "cookie-parser";
 import { initializeTransactionalContext } from "typeorm-transactional";
 import { DocumentBuilder, SwaggerModule } from "@nestjs/swagger";
 import * as dayjs from "dayjs";
@@ -33,6 +34,7 @@ async function bootstrap() {
 	app.setGlobalPrefix("/api");
 	app.enableCors({ origin: "*" });
 	app.use(helmet());
+	app.use(cookieParser());
 
 	if (Env.ENABLE_SWAGGER) {
 		const config = new DocumentBuilder()

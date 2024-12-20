@@ -1,6 +1,10 @@
 import { AccountRepository } from "@db/repositories";
 import { Injectable } from "@nestjs/common";
-import { CreateAccountRequest } from "./dto";
+import {
+	CheckExistsAccountField,
+	CheckExistsAccountRequest,
+	CreateAccountRequest,
+} from "./dto";
 import * as bcrypt from "bcrypt";
 import { ValidationError } from "class-validator";
 import { ApiValidationError } from "@errors";
@@ -14,8 +18,14 @@ export class AccountService {
 	async validateBeforeCreate(dto: CreateAccountRequest) {
 		const errors = [];
 		const [isEmailExists, isPhoneExists] = await Promise.all([
-			this.isEmailExists(dto.email),
-			this.isPhoneExists(dto.phone),
+			this.checkExists({
+				field: CheckExistsAccountField.EMAIL,
+				value: dto.email,
+			}),
+			this.checkExists({
+				field: CheckExistsAccountField.PHONE,
+				value: dto.phone,
+			}),
 		]);
 
 		if (isEmailExists) {
@@ -41,26 +51,6 @@ export class AccountService {
 		}
 	}
 
-	async isEmailExists(email: string, accountId?: number) {
-		const count = await this.accountRepository.count({
-			where: {
-				email: email,
-				id: accountId,
-			},
-		});
-		return count > 0;
-	}
-
-	async isPhoneExists(phone: string, accountId?: number) {
-		const count = await this.accountRepository.count({
-			where: {
-				phone: phone,
-				id: accountId,
-			},
-		});
-		return count > 0;
-	}
-
 	async create(dto: CreateAccountRequest) {
 		await this.validateBeforeCreate(dto);
 		return await this.accountRepository.save({
@@ -68,5 +58,14 @@ export class AccountService {
 			password: await bcrypt.hash(dto.password, 10),
 			phone: dto.phone,
 		});
+	}
+
+	async checkExists(dto: CheckExistsAccountRequest) {
+		const count = await this.accountRepository.count({
+			where: {
+				[dto.field]: dto.value,
+			},
+		});
+		return count > 0;
 	}
 }

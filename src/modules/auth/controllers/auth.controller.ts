@@ -1,9 +1,9 @@
 import { Body, Controller, Get, Post } from "@nestjs/common";
-import { AuthService } from "./auth.service";
-import { BasicLoginRequest, ProfileResponse } from "./dto";
+import { AuthService } from "../services";
+import { BasicLoginRequest, ProfileResponse } from "../dto";
 import { ApiResponseDto } from "@utils";
 import { ApiBearerAuth, ApiTags } from "@nestjs/swagger";
-import { SkipAuth } from "./skip-auth.decorator";
+import { SkipAuth } from "../skip-auth.decorator";
 
 @Controller("auth")
 @ApiTags("auth")

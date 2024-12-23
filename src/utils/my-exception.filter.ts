@@ -35,14 +35,14 @@ export class MyExceptionFilter implements ExceptionFilter {
 		if (exception instanceof ApiError) {
 			data = exception;
 		} else if (exception instanceof HttpException) {
+			console.error(exception);
 			data = {
 				code: exception.constructor.name,
 				message: exception.message,
-				detail: exception.getResponse(),
+				detail: null,
 				status: exception.getStatus(),
 			};
 		} else {
-			// Log unexpected errors for debugging.
 			console.error(exception);
 		}
 

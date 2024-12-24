@@ -6,6 +6,7 @@ import { Request, Response } from "express";
 import { Env } from "@utils";
 import { InvalidCallbackUriError } from "../errors";
 import { SkipAuth } from "../skip-auth.decorator";
+import { ApiError } from "@errors";
 
 @Controller("auth/2")
 @ApiTags("auth")
@@ -28,19 +29,29 @@ export class Auth2Controller {
 		if (uri.hostname != Env.APP_DOMAIN) {
 			throw new InvalidCallbackUriError();
 		}
-		const { accessToken, refreshToken } = await this.auth2Service.basicLogin(
-			query.code,
-		);
-		res.cookie("accessToken", accessToken, {
-			httpOnly: true,
-			secure: req.protocol === "https",
-		});
-		res.cookie("refreshToken", refreshToken, {
-			path: "/api/auth/refresh-token",
-			httpOnly: true,
-			secure: req.protocol === "https",
-		});
-		res.redirect(query.callback);
+		const searchParams = new URLSearchParams();
+		try {
+			const { accessToken, refreshToken } = await this.auth2Service.basicLogin(
+				query.code,
+			);
+			res.cookie("accessToken", accessToken, {
+				httpOnly: true,
+				secure: req.protocol === "https",
+			});
+			res.cookie("refreshToken", refreshToken, {
+				path: "/api/auth/refresh-token",
+				httpOnly: true,
+				secure: req.protocol === "https",
+			});
+			searchParams.set("status", "success");
+		} catch (error) {
+			if (error instanceof ApiError) {
+				searchParams.set("error", error.code);
+			} else {
+				throw error;
+			}
+		}
+		res.redirect(`${query.callback}?${searchParams.toString()}`);
 	}
 
 	@Get("logout")

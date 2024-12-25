@@ -27,7 +27,7 @@ export class RecordService {
 			this.recordRepository.save({
 				content: dto.content,
 				boardId: board.id,
-				createdAt: new Date(),
+				createdAt: dto.createdAt || new Date(),
 			}),
 			this.boardRepository.update(
 				{
@@ -90,6 +90,7 @@ export class RecordService {
 			this.recordRepository.save({
 				...record,
 				content: dto.content,
+				createdAt: dto.createdAt || record.createdAt,
 			}),
 			this.boardRepository.update(
 				{

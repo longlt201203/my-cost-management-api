@@ -13,7 +13,12 @@ import { Injectable } from "@nestjs/common";
 import { OpenAIService } from "@providers/openai";
 import { ClassTracing } from "magic-otel";
 import { Between } from "typeorm";
-import { NoAnalysisFoundError, NoRecordFoundError } from "./errors";
+import {
+	NoAnalysisFoundError,
+	NoMonthlyFoundError,
+	NoRecordFoundError,
+	NoYearlyFoundError,
+} from "./errors";
 import * as dayjs from "dayjs";
 import {
 	ManualAnalyzeBoardDailyRequest,
@@ -228,7 +233,7 @@ export class AnalysisService {
 				month: month,
 			},
 		});
-		if (records.length === 0) throw new NoRecordFoundError();
+		if (records.length === 0) throw new NoMonthlyFoundError();
 		await Promise.all([
 			this.monthlyAnalysisRepository.delete({
 				boardId: board.id,
@@ -274,7 +279,7 @@ export class AnalysisService {
 				year: year,
 			},
 		});
-		if (!records) throw new NoAnalysisFoundError();
+		if (!records) throw new NoYearlyFoundError();
 		const dataChart = Array(12).fill(0);
 		records.forEach(
 			(records) => (dataChart[records.month - 1] = records.total),
@@ -324,7 +329,7 @@ export class AnalysisService {
 				year: year,
 			},
 		});
-		if (records.length === 0) throw new NoRecordFoundError();
+		if (records.length === 0) throw new NoYearlyFoundError();
 		await Promise.all([
 			this.yearlyAnalysisRepository.delete({
 				board: board.id,

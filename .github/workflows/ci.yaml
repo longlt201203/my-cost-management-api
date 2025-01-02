@@ -24,6 +24,7 @@ env:
   OPEN_AI_API_KEY: ${{ secrets.OPEN_AI_API_KEY }}
   DEPLOY_KEY: ${{ secrets.DEPLOY_KEY }}
   APP_DOMAIN: ${{ secrets.APP_DOMAIN }}
+  REDIS_URL: ${{ secrets.REDIS_URL }}
 
 jobs:
   build-and-push-docker:
@@ -76,4 +77,5 @@ jobs:
           -e OPEN_AI_API_KEY=${{ env.OPEN_AI_API_KEY }} \
           -e DEPLOY_KEY=${{ env.DEPLOY_KEY }} \
           -e APP_DOMAIN=${{ env.APP_DOMAIN }} \
+          -e REDIS_URL=${{ env.REDIS_URL }} \
           ${{ secrets.DOCKERHUB_USERNAME }}/${{ env.REPO_ID }}:latest

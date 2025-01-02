@@ -24,6 +24,8 @@ export const Env = {
 	DEPLOY_KEY: process.env.DEPLOY_KEY || "",
 
 	APP_DOMAIN: process.env.APP_DOMAIN || "",
+
+	REDIS_URL: process.env.REDIS_URL || "",
 } as const;
 
 console.log(Env);

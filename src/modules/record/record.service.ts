@@ -6,7 +6,7 @@ import {
 	UpdateRecordRequest,
 } from "./dto";
 import { ClassTracing } from "magic-otel";
-import { McmClsStore } from "@utils";
+import { McmClsStore, redisClient } from "@utils";
 import { ClsService } from "nestjs-cls";
 import { RecordNotFoundError } from "./errors";
 import { Between } from "typeorm";
@@ -21,13 +21,21 @@ export class RecordService {
 		private readonly cls: ClsService<McmClsStore>,
 	) {}
 
+	async scheduleAnalyze(boardId: number, createdAt: Date) {
+		const key = `analyze:${boardId}:${dayjs(createdAt).format("YYYY-MM-DD")}`;
+		await redisClient.set(key, 1, {
+			EX: 10 * 60,
+		});
+	}
+
 	async create(dto: CreateRecordRequest) {
 		const board = this.cls.get("board");
+		const createdAt = dto.createdAt || new Date();
 		const [result] = await Promise.all([
 			this.recordRepository.save({
 				content: dto.content,
 				boardId: board.id,
-				createdAt: dto.createdAt || new Date(),
+				createdAt: createdAt,
 			}),
 			this.boardRepository.update(
 				{
@@ -38,6 +46,7 @@ export class RecordService {
 				},
 			),
 		]);
+		this.scheduleAnalyze(board.id, createdAt);
 		return result;
 	}
 
@@ -56,6 +65,7 @@ export class RecordService {
 
 	async delete(recordId: number) {
 		const boardId = this.cls.get("board.id");
+		const record = await this.getOneOrFail(recordId);
 		await Promise.all([
 			this.recordRepository.delete({
 				id: recordId,
@@ -69,6 +79,7 @@ export class RecordService {
 				},
 			),
 		]);
+		this.scheduleAnalyze(boardId, record.createdAt);
 	}
 
 	async getOneOrFail(recordId: number) {
@@ -86,6 +97,8 @@ export class RecordService {
 	async update(recordId: number, dto: UpdateRecordRequest) {
 		const boardId = this.cls.get("board.id");
 		const record = await this.getOneOrFail(recordId);
+		const oldCreatedAt = record.createdAt;
+		const createdAt = dto.createdAt || record.createdAt;
 		const [result] = await Promise.all([
 			this.recordRepository.save({
 				...record,
@@ -101,6 +114,8 @@ export class RecordService {
 				},
 			),
 		]);
+		this.scheduleAnalyze(boardId, oldCreatedAt);
+		this.scheduleAnalyze(boardId, createdAt);
 		return result;
 	}
 }

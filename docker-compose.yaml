@@ -1,4 +1,4 @@
-version: '3.9'
+version: "3.9"
 services:
   db:
     image: mysql:8.0
@@ -11,11 +11,31 @@ services:
       - mcm_db_vol:/var/lib/mysql
     networks:
       - mcm_net
-  
+
   zipkin:
     image: openzipkin/zipkin
     ports:
       - 9411:9411
+    networks:
+      - mcm_net
+
+  redis:
+    image: redis:latest
+    ports:
+      - 6379:6379
+    volumes:
+      - ./redis.conf:/usr/local/etc/redis/redis.conf
+    command: |
+      redis-server /usr/local/etc/redis/redis.conf
+    networks:
+      - mcm_net
+
+  redisinsight:
+    image: redis/redisinsight:latest
+    ports:
+      - 1301:5540
+    volumes:
+      - mcm_redis_vol:/data
     networks:
       - mcm_net
 
@@ -25,3 +45,4 @@ networks:
 
 volumes:
   mcm_db_vol:
+  mcm_redis_vol:

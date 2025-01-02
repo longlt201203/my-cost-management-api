@@ -8,6 +8,7 @@ export const DbConstants = {
 		ExtractedRecordCategory: "extracted_record_category",
 		DailyAnalysis: "daily_analysis",
 		MonthlyAnalysis: "monthly_analysis",
+		AccountCategory: "account_category",
 	},
 
 	ColumnName: {
@@ -49,6 +50,13 @@ export const DbConstants = {
 
 		Category: {
 			id: "category_id",
+			name: "name",
+			language: "language",
+			color: "color",
+		},
+
+		AccountCategory: {
+			id: "account_category_id",
 			name: "name",
 			language: "language",
 			color: "color",

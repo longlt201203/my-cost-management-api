@@ -1,5 +1,5 @@
 import { Body, Controller, Get, Param, Post, Put, Query } from "@nestjs/common";
-import { ApiTags } from "@nestjs/swagger";
+import { ApiBearerAuth, ApiTags } from "@nestjs/swagger";
 import { CategoryService } from "./category.service";
 import {
 	CategoryResponse,
@@ -8,12 +8,11 @@ import {
 	GetCategoriesQuery,
 	UpdateCategoryRequest,
 } from "./dto";
-import { SkipAuth } from "@modules/auth";
 import { ApiResponseDto } from "@utils";
 
 @Controller("category")
 @ApiTags("category")
-@SkipAuth()
+@ApiBearerAuth()
 export class CategoryController {
 	constructor(private readonly categoryService: CategoryService) {}
 

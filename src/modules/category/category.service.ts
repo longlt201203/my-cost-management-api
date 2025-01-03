@@ -56,9 +56,10 @@ export class CategoryService {
 	}
 
 	async deleteByIds(dto: DeleteRequest) {
-		await this.getOwnedCategoryById(id, true);
+		const accountId = this.cls.get("account.id");
 		return await this.categoryRepo.delete({
 			id: In(dto.ids),
+			accountId: accountId,
 		});
 	}
 
@@ -68,6 +69,10 @@ export class CategoryService {
 			where: {
 				accountId: Or(IsNull(), Equal(accountId)),
 				language: query.language,
+			},
+			order: {
+				accountId: "DESC",
+				id: "DESC",
 			},
 		});
 	}

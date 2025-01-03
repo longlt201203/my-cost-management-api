@@ -11,11 +11,15 @@ export class CategoryResponse {
 	@ApiProperty()
 	color: string;
 
+	@ApiProperty()
+	accountId: number;
+
 	static fromEntity(entity: CategoryEntity): CategoryResponse {
 		return {
 			id: entity.id,
 			name: entity.name,
 			color: entity.color,
+			accountId: entity.accountId,
 		};
 	}
 

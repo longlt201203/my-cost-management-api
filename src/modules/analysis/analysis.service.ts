@@ -5,18 +5,29 @@ import {
 	CategoryRepository,
 	DailyAnalysisRepository,
 	ExtractedRecordRepository,
+	MonthlyAnalysisRepository,
 	RecordRepository,
+	YearlyAnalysisRepository,
 } from "@db/repositories";
 import { Injectable, OnModuleInit } from "@nestjs/common";
 import { OpenAIService } from "@providers/openai";
 import { ClassTracing } from "magic-otel";
 import { Between } from "typeorm";
-import { NoAnalysisFoundError, NoRecordFoundError } from "./errors";
+import {
+	NoAnalysisFoundError,
+	NoMonthlyFoundError,
+	NoRecordFoundError,
+	NoYearlyFoundError,
+} from "./errors";
 import * as dayjs from "dayjs";
-import { ManualAnalyzeBoardDailyRequest } from "./dto";
+import {
+	ManualAnalyzeBoardDailyRequest,
+	ManualAnalyzeBoardMonthlyRequest,
+} from "./dto";
 import { McmClsStore, PromiseAllHandler, redisClient } from "@utils";
 import { ClsService } from "nestjs-cls";
 import { BoardNotFoundError } from "@modules/board/errors";
+import { ManualAnalyzeBoardYearlyRequest } from "./dto/manual-analyze-board-yearly.request";
 
 @Injectable()
 @ClassTracing()
@@ -30,6 +41,8 @@ export class AnalysisService implements OnModuleInit {
 		private readonly categoryRepository: CategoryRepository,
 		private readonly analysisRepository: AnalysisRepository,
 		private readonly cls: ClsService<McmClsStore>,
+		private readonly monthlyAnalysisRepository: MonthlyAnalysisRepository,
+		private readonly yearlyAnalysisRepository: YearlyAnalysisRepository,
 	) {}
 
 	async onModuleInit() {
@@ -152,11 +165,207 @@ export class AnalysisService implements OnModuleInit {
 		}
 		await this.dailyAnalysisRepository.save({
 			date: date.get("date"),
-			month: date.get("month"),
+			month: date.get("month") + 1,
 			year: date.get("year"),
 			boardId: board.id,
 			total: total,
 			createdAt: date.toDate(),
+		});
+		await this.boardRepository.update(
+			{
+				id: board.id,
+			},
+			{
+				isAnalyzed: true,
+			},
+		);
+	}
+
+	async getMonthlyChartData(
+		boardId: number,
+		date: dayjs.Dayjs,
+		timezone?: string,
+	) {
+		const month = date.get("month") + 1;
+		const year = date.get("year");
+		const records = await this.dailyAnalysisRepository.find({
+			where: {
+				boardId: boardId,
+				year: year,
+				month: month,
+			},
+		});
+		if (!records) throw new NoAnalysisFoundError();
+		const dataChart = Array(date.daysInMonth()).fill(0);
+		records.forEach((record) => (dataChart[record.date - 1] = record.total));
+		return dataChart;
+	}
+
+	async getMonthlyAnalysis(
+		boardId: number,
+		date: dayjs.Dayjs,
+		timezone?: string,
+	) {
+		const month = date.get("month") + 1;
+		const year = date.get("year");
+		const analysis = await this.monthlyAnalysisRepository.findOne({
+			where: {
+				boardId: boardId,
+				year: year,
+				month: month,
+			},
+		});
+		if (!analysis) throw new NoAnalysisFoundError();
+		return analysis;
+	}
+
+	async manualAnalyzeBoardMonthly(dto: ManualAnalyzeBoardMonthlyRequest) {
+		const accountId = this.cls.get("account.id");
+		const board = await this.boardRepository.findOne({
+			where: {
+				id: dto.boardId,
+				accountId: accountId,
+			},
+		});
+		if (!board) throw new BoardNotFoundError();
+		await this.analyzeBoardMonthly(board, dto.date, dto.timezone);
+	}
+
+	async analyzeBoardMonthly(
+		board: BoardEntity,
+		date: dayjs.Dayjs,
+		timezone?: string,
+	) {
+		const startMonth = dayjs.tz(date.startOf("month"), timezone);
+		const endMonth = dayjs.tz(date.endOf("month"), timezone);
+
+		const month = date.get("month") + 1;
+		const year = date.get("year");
+
+		const records = await this.dailyAnalysisRepository.find({
+			where: {
+				boardId: board.id,
+				year: year,
+				month: month,
+			},
+		});
+		if (records.length === 0) throw new NoMonthlyFoundError();
+		await Promise.all([
+			this.monthlyAnalysisRepository.delete({
+				boardId: board.id,
+				year: year,
+				month: month,
+			}),
+		]);
+
+		let total = 0;
+		for (const record of records) {
+			total += record.total;
+		}
+		const dailyAvg = total / records.length;
+
+		await this.monthlyAnalysisRepository.save({
+			dailyAvg: dailyAvg,
+			month: month,
+			year: year,
+			total: total,
+			median: 0,
+			variant: 0,
+			boardId: board.id,
+		});
+		await this.boardRepository.update(
+			{
+				id: board.id,
+			},
+			{
+				isAnalyzed: true,
+			},
+		);
+	}
+
+	async getYearlyChartData(
+		boardId: number,
+		date: dayjs.Dayjs,
+		timezone?: string,
+	) {
+		const year = date.get("year");
+		const records = await this.monthlyAnalysisRepository.find({
+			where: {
+				boardId: boardId,
+				year: year,
+			},
+		});
+		if (!records) throw new NoYearlyFoundError();
+		const dataChart = Array(12).fill(0);
+		records.forEach(
+			(records) => (dataChart[records.month - 1] = records.total),
+		);
+		return dataChart;
+	}
+
+	async getYearlyAnalysis(
+		boardId: number,
+		date: dayjs.Dayjs,
+		timezone?: string,
+	) {
+		const year = date.get("year");
+		const analysis = await this.yearlyAnalysisRepository.findOne({
+			where: {
+				year: year,
+				board: boardId,
+			},
+		});
+		console.log(analysis);
+		if (!analysis) throw new NoAnalysisFoundError();
+		return analysis;
+	}
+
+	async manualAnalyzeBoardYearly(dto: ManualAnalyzeBoardYearlyRequest) {
+		const accountId = this.cls.get("account.id");
+		const board = await this.boardRepository.findOne({
+			where: {
+				id: dto.boardId,
+				accountId: accountId,
+			},
+		});
+		if (!board) throw new BoardNotFoundError();
+		await this.analyzeBoardYearly(board, dto.date, dto.timezone);
+	}
+
+	async analyzeBoardYearly(
+		board: BoardEntity,
+		date: dayjs.Dayjs,
+		timezone?: string,
+	) {
+		const year = date.get("year");
+
+		const records = await this.monthlyAnalysisRepository.find({
+			where: {
+				boardId: board.id,
+				year: year,
+			},
+		});
+		if (records.length === 0) throw new NoYearlyFoundError();
+		await Promise.all([
+			this.yearlyAnalysisRepository.delete({
+				board: board.id,
+				year: year,
+			}),
+		]);
+
+		let total = 0;
+		for (const record of records) {
+			total += record.total;
+		}
+		const monthAvg = total / records.length;
+
+		await this.yearlyAnalysisRepository.save({
+			year: year,
+			monthAvg: monthAvg,
+			total: total,
+			median: 0,
+			variant: 0,
+			board: board.id,
 		});
 		await this.boardRepository.update(
 			{

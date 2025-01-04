@@ -1,0 +1,1 @@
+ALTER TABLE `category` ADD COLUMN `account_id` INT DEFAULT NULL;

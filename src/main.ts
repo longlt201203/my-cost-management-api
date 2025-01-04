@@ -1,4 +1,4 @@
-import { Env } from "@utils";
+import { Env, initRedisClient } from "@utils";
 import { registerOpentelemetry } from "magic-otel";
 import { ZipkinExporter } from "@opentelemetry/exporter-zipkin";
 registerOpentelemetry({
@@ -28,6 +28,7 @@ dayjs.extend(timezone);
 dayjs.extend(utc);
 
 async function bootstrap() {
+	await initRedisClient();
 	initializeTransactionalContext();
 
 	const app = await NestFactory.create(AppModule);

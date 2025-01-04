@@ -9,7 +9,7 @@ import {
 	RecordRepository,
 	YearlyAnalysisRepository,
 } from "@db/repositories";
-import { Injectable } from "@nestjs/common";
+import { Injectable, OnModuleInit } from "@nestjs/common";
 import { OpenAIService } from "@providers/openai";
 import { ClassTracing } from "magic-otel";
 import { Between } from "typeorm";
@@ -24,14 +24,14 @@ import {
 	ManualAnalyzeBoardDailyRequest,
 	ManualAnalyzeBoardMonthlyRequest,
 } from "./dto";
-import { McmClsStore, PromiseAllHandler } from "@utils";
+import { McmClsStore, PromiseAllHandler, redisClient } from "@utils";
 import { ClsService } from "nestjs-cls";
 import { BoardNotFoundError } from "@modules/board/errors";
 import { ManualAnalyzeBoardYearlyRequest } from "./dto/manual-analyze-board-yearly.request";
 
 @Injectable()
 @ClassTracing()
-export class AnalysisService {
+export class AnalysisService implements OnModuleInit {
 	constructor(
 		private readonly openaiService: OpenAIService,
 		private readonly recordRepository: RecordRepository,
@@ -44,6 +44,22 @@ export class AnalysisService {
 		private readonly monthlyAnalysisRepository: MonthlyAnalysisRepository,
 		private readonly yearlyAnalysisRepository: YearlyAnalysisRepository,
 	) {}
+
+	async onModuleInit() {
+		const sub = redisClient.duplicate();
+		await sub.connect();
+		sub.pSubscribe("__keyevent@0__:expired", async (message, channel) => {
+			console.log("Received message:", message, "from channel:", channel);
+			const [_, boardId, date] = message.split(":");
+			const board = await this.boardRepository.findOne({
+				where: {
+					id: parseInt(boardId),
+				},
+			});
+			if (!board) return;
+			await this.analyzeBoardDaily(board, dayjs(date));
+		});
+	}
 
 	async getDailyAnalysis(
 		boardId: number,

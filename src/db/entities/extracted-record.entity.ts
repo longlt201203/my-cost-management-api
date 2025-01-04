@@ -5,7 +5,6 @@ import {
 	JoinColumn,
 	ManyToOne,
 	OneToMany,
-	OneToOne,
 	PrimaryGeneratedColumn,
 } from "typeorm";
 import { RecordEntity } from "./record.entity";
@@ -40,7 +39,7 @@ export class ExtractedRecordEntity {
 	@Column({ name: ColumnName.Record.id })
 	recordId: number;
 
-	@OneToOne(() => RecordEntity)
+	@ManyToOne(() => RecordEntity)
 	@JoinColumn({ name: ColumnName.Record.id })
 	record: RecordEntity;
 

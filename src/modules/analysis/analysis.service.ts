@@ -74,7 +74,6 @@ export class AnalysisService implements OnModuleInit {
 				createdAt: Between(startDate.toDate(), endDate.toDate()),
 			},
 		});
-		if (!analysis) throw new NoAnalysisFoundError();
 		return analysis;
 	}
 
@@ -117,7 +116,17 @@ export class AnalysisService implements OnModuleInit {
 				createdAt: Between(startDate.toDate(), endDate.toDate()),
 			},
 		});
-		if (records.length === 0) throw new NoRecordFoundError();
+		if (records.length === 0) {
+			await this.dailyAnalysisRepository.save({
+				date: date.get("date"),
+				month: date.get("month") + 1,
+				year: date.get("year"),
+				boardId: board.id,
+				total: 0,
+				createdAt: date.toDate(),
+			});
+			return;
+		}
 		const recordTimeMap = {};
 		const contentArr = [];
 		for (const record of records) {
